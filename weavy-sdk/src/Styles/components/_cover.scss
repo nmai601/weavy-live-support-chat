@@ -1,0 +1,78 @@
+/// <reference path="../_core.scss" />
+.cover {
+    position: relative;
+    word-wrap: break-word;
+
+    .top-right {
+        position: absolute;
+        top: $navbar-padding-y;
+        right: $navbar-padding-x;
+    }
+
+    .top-left {
+        position: absolute;
+        top: $navbar-padding-y;
+        left: $navbar-padding-x;
+    }
+
+    &.cover-bg {
+        // Blending the gradient with theme-color
+        background-image: linear-gradient(45deg, $cover-gradient-start, $cover-gradient-end);
+
+        &, .btn-icon {
+            color: color-yiq(mix($cover-gradient-start, $cover-gradient-end));
+        }
+    }
+
+    &.cover-under-navbar {
+        .has-navbar & {
+            margin-top: -$navbar-height;
+            padding-top: $navbar-height;
+
+            .top-right, .top-left {
+                top: $navbar-height + $navbar-padding-y;
+            }
+        }
+
+        .has-navbar-2 & {
+            margin-top: -2 * $navbar-height;
+            padding-top: 2 * $navbar-height;
+
+            .top-right, .top-left {
+                top: 2 * $navbar-height + $navbar-padding-y;
+            }
+        }
+
+        .has-navbar-3 & {
+            margin-top: -3 * $navbar-height;
+            padding-top: 3 * $navbar-height;
+
+            .top-right, .top-left {
+                top: 3 * $navbar-height + $navbar-padding-y;
+            }
+        }
+    }
+
+    .form-group[role=search] {
+        @include media-breakpoint-up(md) {
+            max-width: 24rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    }
+
+    .cover-content {
+        @extend .text-center, .py-4;
+    }
+
+    .facepile {
+        position: relative;
+        bottom: -1rem;
+        margin-top: -1rem;
+        justify-content: center;
+
+        a {
+            margin-bottom: 0;
+        }
+    }
+}

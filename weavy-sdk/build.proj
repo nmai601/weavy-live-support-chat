@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Package">
+
+  <ItemGroup>
+    <SolutionFile Include="$(MSBuildProjectDirectory)\*.sln"/>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <Configuration Condition="'$(Configuration)'==''">Release</Configuration>
+  </PropertyGroup>
+
+  <!-- custom tasks -->
+  <UsingTask TaskName="CreatePackage" AssemblyFile="$(MSBuildProjectDirectory)\tools\Weavy.Build.dll" />
+  <UsingTask TaskName="GetVersion" AssemblyFile="$(MSBuildProjectDirectory)\tools\Weavy.Build.dll" />
+
+  <!-- create deployment package -->
+  <Target Name="Package" DependsOnTargets="Precompile">
+    <GetVersion Path="$(MSBuildProjectDirectory)\src\Properties\BuildInfo.cs">
+      <Output TaskParameter="SemVer" PropertyName="SemVer"/>
+    </GetVersion>
+    <CreatePackage Name="$(Semver)" SolutionDir="$(MSBuildProjectDirectory)" />
+  </Target>
+
+  <!-- precompile razor views -->
+  <Target Name="Precompile" DependsOnTargets="Publish">
+    <Message Text="Precompiling views" Importance="High" />
+    <AspNetCompiler VirtualPath="/" PhysicalPath="$(MSBuildProjectDirectory)\dist\published" TargetPath="$(MSBuildProjectDirectory)\dist\compiled" Force="true" />
+    <Message Text="Merging precompiled views" Importance="High" />
+    <CSC OutputAssembly="$(MSBuildProjectDirectory)\src\obj\$(Configuration)\AssemblyInfo.dll" TargetType="library" NoLogo="false" Sources="$(MSBuildProjectDirectory)\src\Properties\AssemblyInfo.cs" />
+    <Exec Command="aspnet_merge.exe &quot;$(MSBuildProjectDirectory)\dist\compiled&quot; -o Weavy.Views -copyattrs &quot;$(MSBuildProjectDirectory)\src\obj\$(Configuration)\AssemblyInfo.dll&quot; -a -nologo" WorkingDirectory="$(MSBuildProjectDirectory)\tools" />
+  </Target>
+
+  <!-- publish project -->
+  <Target Name="Publish" DependsOnTargets="Restore">
+    <Message Text="Publishing project" Importance="High" />
+    <MSBuild Projects="@(SolutionFile)" Properties="Configuration=$(Configuration);DeployOnBuild=true;DeployDefaultTarget=WebPublish;WebPublishMethod=FileSystem;DeleteExistingFiles=true;publishUrl=$(MSBuildProjectDirectory)\dist\published" />
+
+    <!-- copy satellite assemblies -->
+    <ItemGroup>
+      <Resources Include="$(MSBuildProjectDirectory)\src\bin\**\Weavy.resources.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(Resources)" DestinationFolder="$(MSBuildProjectDirectory)\dist\published\bin\%(Resources.RecursiveDir)" SkipUnchangedFiles="false" />
+
+    <!-- copy xml files for web api documentation -->
+    <ItemGroup>
+      <DocFiles Include="$(MSBuildProjectDirectory)\src\bin\Weavy*.xml" />
+    </ItemGroup>
+    <Copy SourceFiles="@(DocFiles)" DestinationFolder="$(MSBuildProjectDirectory)\dist\published\bin" SkipUnchangedFiles="false" />
+  </Target>
+
+  <!-- package restore -->
+  <Target Name="Restore">
+    <Message Text="Restoring Nuget packages" Importance="High" />
+    <Exec Command="tools\nuget.exe restore &quot;%(SolutionFile.Filename).sln&quot;" WorkingDirectory="$(MSBuildProjectDirectory)"/>
+  </Target>
+</Project>

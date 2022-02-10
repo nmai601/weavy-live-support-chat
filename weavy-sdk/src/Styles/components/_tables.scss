@@ -1,0 +1,428 @@
+/// <reference path="../_core.scss" />
+
+.table {
+
+    th, td {
+        padding: $table-cell-padding $table-cell-padding-sm;
+
+        &.table-icon {
+            // cell with icon or avatar
+            line-height: 0;
+            color: $icon-color;
+            text-align: center;
+            vertical-align: middle;
+            position: relative;
+            padding: 0 $table-cell-padding-sm;
+            width: 2rem + $table-cell-padding-sm * 2;
+
+            > :only-child {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: auto;
+            }
+
+            &:last-child > :only-child {
+                margin-left: auto;
+                margin-right: 0;
+                justify-content: flex-end;
+            }
+        }
+
+        &:first-child {
+            padding-left: $navbar-padding-x;
+
+            &.table-icon {
+                width: $navbar-padding-x + 2rem + $table-cell-padding-sm;
+            }
+        }
+
+        &:last-child {
+            padding-right: $navbar-padding-x;
+
+            &.table-icon {
+                width: $table-cell-padding-sm + 2rem + $navbar-padding-x;
+            }
+        }
+
+        > .btn-icon, > svg.i {
+            margin-top: -$table-cell-padding;
+            margin-bottom: -($table-cell-padding - $table-cell-padding-sm);
+        }
+    }
+
+    thead {
+        th, td {
+            font-size: $font-size-xs;
+            text-transform: uppercase;
+            border-top-color: transparent;
+            border-bottom: $table-border-width solid $table-border-color;
+        }
+    }
+}
+
+.table-bordered {
+    th,
+    td {
+        padding: $table-cell-padding;
+    }
+
+    thead th {
+        border-top-color: $table-border-color;
+    }
+}
+
+.table-sm {
+    th, td {
+        padding: $table-cell-padding-sm * 2 $table-cell-padding-sm;
+
+        &.table-icon {
+            padding: 0;
+            width: 2rem;
+
+            .img-32 {
+                width: 1.5rem;
+                height: 1.5rem;
+            }
+        }
+    }
+}
+
+.table-fixed {
+    table-layout: fixed;
+
+    tr:first-child td {
+        border-top-color: transparent;
+    }
+
+    thead {
+        display: none;
+
+        @include media-breakpoint-up(sm) {
+            display: table-header-group;
+        }
+    }
+}
+
+.table-muted {
+    th, td {
+        color: $text-muted;
+
+        &:not(.table-icon) {
+            a {
+                color: $text-muted;
+            }
+        }
+
+        &.table-icon:first-child, .badge {
+            opacity: $opacity-muted;
+        }
+    }
+}
+
+.table-trashed {
+    @extend .table-muted;
+
+    th, td {
+        text-decoration: line-through;
+    }
+}
+
+tr[data-href], tr.table-checkbox {
+    cursor: pointer;
+}
+
+// highlight drop target
+tr.drop-target {
+    background-color: color("amber", 100);
+
+    td {
+        position: relative;
+        border-color: transparent;
+
+        &::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            border: $card-border-width*2 dashed $amber;
+            border-left: 0;
+            border-right: 0;
+        }
+    }
+}
+
+.table-hover tbody tr:hover {
+    transition: background-color $md-animation-duration-fast $md-animation-curve-fast-out-slow-in;
+}
+
+// table with icon + name (+ icon)
+.table-name {
+    @extend .table-fixed;
+    // name
+    td:nth-child(2), th:nth-child(2) {
+        width: 100%;
+        @include text-truncate;
+    }
+}
+
+// table with icon + name + description (+ icon), e.g. manage plugins etc.
+.table-name-desc {
+    @extend .table-fixed;
+    // name
+    td:nth-child(2), th:nth-child(2) {
+        width: 100%;
+        @include text-truncate;
+    }
+    // description
+    td:nth-child(3), th:nth-child(3) {
+        display: none;
+    }
+
+    @include media-breakpoint-up(md) {
+        td:nth-child(2), th:nth-child(2) {
+            width: 20rem;
+        }
+
+        td:nth-child(3), th:nth-child(3) {
+            width: 100%;
+            display: table-cell;
+            @include text-truncate;
+        }
+    }
+}
+
+// table with icon + name + description + count (+ icon), e.g. space listing etc.
+.table-name-desc-count {
+    @extend .table-fixed;
+    // name
+    td:nth-child(2), th:nth-child(2) {
+        width: 100%;
+        @include text-truncate;
+    }
+    // description
+    td:nth-child(3), th:nth-child(3) {
+        width: 100%;
+        @include text-truncate;
+        display: none;
+    }
+    // count
+    td:nth-child(4), th:nth-child(4) {
+        display: none;
+        width: 5.5rem; // 85px;
+        @include text-truncate;
+        text-align: right;
+    }
+
+    @include media-breakpoint-up(sm) {
+        td:nth-child(4), th:nth-child(4) {
+            display: table-cell;
+        }
+    }
+
+    @include media-breakpoint-up(lg) {
+        td:nth-child(2), th:nth-child(2) {
+            width: 20rem;
+        }
+
+        td:nth-child(3), th:nth-child(3) {
+            display: table-cell;
+        }
+    }
+}
+
+// table for files app
+.table-files {
+    @extend .table-fixed;
+    // name
+    td:nth-child(2), th:nth-child(2) {
+        width: 100%;
+        display: flex;
+
+        a {
+            @include text-truncate;
+        }
+
+        span.badge {
+            align-self: center;
+            margin-left:.5rem;
+        }
+    }
+    // modified
+    td:nth-child(3), th:nth-child(3) {
+        width: 11.25rem; // 180px; // needs to be this wide to fit MM/DD/YYYY HH:mm AM/PM
+        display: none;
+    }
+    // type
+    td:nth-child(4), th:nth-child(4) {
+        display: none;
+        width: 7.5rem; // 120px;
+    }
+    // size
+    td:nth-child(5), th:nth-child(5) {
+        display: none;
+        text-align: right;
+        width: 6.25rem; // 100px;
+    }
+    // show columns on larger devices
+    @include media-breakpoint-up(sm) {
+
+        td:nth-child(3), th:nth-child(3) {
+            display: table-cell;
+        }
+    }
+
+    @include media-breakpoint-up(md) {
+        td:nth-child(5), th:nth-child(5) {
+            display: table-cell;
+        }
+    }
+
+    @include media-breakpoint-up(lg) {
+        td:nth-child(4), th:nth-child(4) {
+            display: table-cell;
+        }
+    }
+}
+
+// table for displaying versions
+.table-versions {
+    td {
+        padding: $table-cell-padding;
+        vertical-align: top;
+
+        &.table-icon {
+            padding: 0;
+            padding-top:.9rem;
+            vertical-align: top;
+        }
+    }
+    // desc
+    td:nth-child(2) {
+        padding-left: 0;
+    }
+
+    td:nth-child(3) {
+        padding-right: $table-cell-padding-sm;
+        padding-top: .4rem;
+    }
+}
+
+// table for manage daemons page
+.table-daemons {
+    @extend .table-fixed;
+    // name
+    td:nth-child(2), th:nth-child(2) {
+        width: 100%;
+        @include text-truncate;
+    }
+    // last
+    td:nth-child(3), th:nth-child(3) {
+        width: 10rem; // 160px;
+        display: none;
+    }
+    // next
+    td:nth-child(4), th:nth-child(4) {
+        width: 10rem; // 160px;
+        display: none;
+    }
+    // schedule
+    td:nth-child(5), th:nth-child(5) {
+        width: 10rem; // 160px;
+        display: none;
+    }
+    // show columns on larger devices
+    @include media-breakpoint-up(sm) {
+        td:nth-child(5), th:nth-child(5) {
+            display: table-cell;
+        }
+    }
+
+    @include media-breakpoint-up(md) {
+        td:nth-child(3), th:nth-child(3) {
+            display: table-cell;
+        }
+
+        td:nth-child(4), th:nth-child(4) {
+            display: table-cell;
+        }
+    }
+}
+// table for log files
+.table-logs {
+    @extend .table-fixed;
+    // name
+    td:nth-child(2), th:nth-child(2) {
+        width: 100%;
+        @include text-truncate;
+    }
+    // modified
+    td:nth-child(3), th:nth-child(3) {
+        width: 11.25rem; // 180px; // needs to be this wide to fit MM/DD/YYYY HH:mm AM/PM
+        display: none;
+    }
+    // size
+    td:nth-child(4), th:nth-child(4) {
+        display: none;
+        text-align: right;
+        width: 6.25rem; // 100px;
+    }
+    // show columns on larger devices
+    @include media-breakpoint-up(sm) {
+        td:nth-child(3), th:nth-child(3) {
+            display: table-cell;
+        }
+    }
+
+    @include media-breakpoint-up(md) {
+        td:nth-child(4), th:nth-child(4) {
+            display: table-cell;
+        }
+    }
+}
+// table for recycle bin
+.table-recycle-bin {
+    @extend .table-fixed;
+    // name
+    td:nth-child(2), th:nth-child(2) {
+        width: 100%;
+        @include text-truncate;
+    }
+    // kind
+    td:nth-child(3), th:nth-child(3) {
+        width: 8rem;
+        @include text-truncate;
+        display: none;
+    }
+    // trashed by
+    td:nth-child(4), th:nth-child(4) {
+        width: 11.25rem;
+        @include text-truncate;
+        display: none;
+    }
+    // trashed
+    td:nth-child(5), th:nth-child(5) {
+        width: 11.25rem; // 180px; // needs to be this wide to fit MM/DD/YYYY HH:mm AM/PM
+        display: none;
+    }
+    // show columns on larger devices
+    @include media-breakpoint-up(sm) {
+        td:nth-child(5), th:nth-child(5) {
+            display: table-cell;
+        }
+    }
+
+    @include media-breakpoint-up(md) {
+        td:nth-child(4), th:nth-child(4) {
+            display: table-cell;
+        }
+    }
+
+    @include media-breakpoint-up(lg) {
+        td:nth-child(3), th:nth-child(3) {
+            display: table-cell;
+        }
+    }
+}

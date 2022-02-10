@@ -1,0 +1,13 @@
+/// <reference path="../_core.scss" />
+
+.notification-alerts .alert {
+    display: none;
+}
+
+.notification-required {
+    cursor: pointer;
+
+    &.alert-link {
+        font-weight: bold;
+    }
+}

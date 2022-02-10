@@ -1,0 +1,54 @@
+﻿@model UserSearchResult
+@{
+    Title = T["People"].ToString();
+    var tab = ViewContext.RouteData.Values["tab"] as string;
+}
+
+@section navbar_middle {
+    @Html.Partial("_NavbarMenu")
+}
+
+
+
+    @(Html.FilterForm<PeopleController>(c => c.Index(null, tab), Model.Query))
+
+    @if (Model.HasItems()) {
+        <table class="table table-hover table-name-desc">
+            <thead>
+                <tr>
+                    <th class="table-icon"></th>
+                    <th><a href="@Url.OrderBy("name")">@T["Name"]</a></th>
+                    <th><a href="@Url.OrderBy("email")">@T["Email"]</a></th>
+                    <th class="table-icon"></th>
+                </tr>
+            </thead>
+            <tbody id="infinite-scroll-target">
+                @{ Html.RenderPartial("_UserTable", Model); }
+            </tbody>
+        </table>
+        @Html.ScrollMore(Model)
+
+    } else if (!Model.Query.Text.IsNullOrWhiteSpace()) {
+        <p class="mt-3">@Html.SearchResultText(Model)</p>
+    }
+
+    @if ((Model.Query.Suspended ?? false) || (Model.Query.Trashed ?? false)) {
+        <p class="text-muted text-center"><small><a href="@(Url.Action<PeopleController>(c => c.Index(null, null)))">@T[@"Back to active user accounts."]</a></small></p>
+    } else if ((ViewBag.Suspended ?? false) && (ViewBag.Trashed ?? false)) {
+        <p class="text-muted text-center"><small><a href="@(Url.Action<PeopleController>(c => c.Index(null, "suspended")))">@T["See suspended"]</a> @T["or"] <a href="@(Url.Action<PeopleController>(c => c.Index(null, "trashed")))">@T[@"trashed user accounts."]</a></small></p>
+    } else if ((ViewBag.Suspended ?? false)) {
+        <p class="text-muted text-center"><small><a href="@(Url.Action<PeopleController>(c => c.Index(null, "suspended")))">@T[@"See suspended user accounts."]</a></small></p>
+    } else if ((ViewBag.Trashed ?? false)) {
+        <p class="text-muted text-center"><small><a href="@(Url.Action<PeopleController>(c => c.Index(null, "trashed")))">@T[@"See trashed user accounts."]</a></small></p>
+    }
+
+
+
+@if (PermissionService.HasPermission(Permission.Manage)) {
+    @section fab {
+        <div class="fab">
+            <a class="btn btn-round btn-primary" href="@(Url.Action<PeopleController>(c => c.New()))" title="@T["Add user"]">@Svg.Icon("plus")</a>
+        </div>
+
+    }
+}

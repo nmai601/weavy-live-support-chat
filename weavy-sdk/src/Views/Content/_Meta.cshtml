@@ -1,0 +1,23 @@
+﻿@model Content
+@{
+    var versionable = Model as IVersionable;
+    var creator = Model.CreatedBy();
+    var editor = Model.ModifiedBy();
+}
+
+<section class="content-section d-flex">
+    <div class="facepile">
+        @creator.AvatarLink(24, htmlAttributes: new { title = T["Created by {0}", creator.GetTitle()] })
+        @if (Model.CreatedById != Model.ModifiedById) {
+            @editor.AvatarLink(24, htmlAttributes: new { title = T["Last modified by {0}", editor.GetTitle()] })
+        }
+    </div>
+    <div class="badges">
+        @Html.Badge(Model)
+    </div>
+
+    @if (Model is ITaggable taggable) {
+        Html.RenderPartial("_Tags", taggable);
+    }
+</section>
+

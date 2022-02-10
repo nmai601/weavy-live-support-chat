@@ -1,0 +1,136 @@
+/// <reference path="../client.scss" />
+
+.weavy-icon {
+    color: $icon-color;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: rem(.25);
+    flex: 0 0 auto;
+
+    svg {
+        fill: currentColor;
+        width: rem(1.5);
+        height: rem(1.5);
+    }
+}
+
+
+// Panel frames
+
+.weavy-panels {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    overscroll-behavior: contain;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    &.weavy-drawer {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: auto;
+        z-index: $client-zindex;
+        transition: transform, opacity;
+        transition-duration: $md-animation-duration;
+        transition-timing-function: $md-animation-curve-fast-out-slow-in;
+        right: -1px;
+        width: $client-panel-width;
+        transform: translateX($client-panel-width);
+        pointer-events: none;
+        border-left: 1px solid #333;
+        background: $white;
+    }
+
+    &.weavy-drawer.weavy-drawer-in {
+        transform: none;
+    }
+}
+
+
+.weavy-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    pointer-events: none;
+    overflow: hidden;
+    background-color: rgba(mix($white, #FFF), $opacity-panel);
+    display: flex;
+    flex-direction: column;
+
+    .weavy-controls {
+        top: rem(.5);
+        left: rem(.5);
+        min-width: rem(2);
+        width: auto;
+        display: flex;
+        z-index: 10000;
+        order: -1;
+        flex-direction: row-reverse;
+
+        &:empty {
+            display: none;
+        }
+
+        .weavy-icon {
+            color: $icon-color;
+        }
+
+        border-bottom: 1px solid $border-color;
+    }
+
+    .weavy-panel-frame {
+        transition: opacity .1s .2s step-end;
+        opacity: 1;
+    }
+
+    &:not(.weavy-loaded) .weavy-panel-frame {
+        opacity: 0;
+        transition: opacity .2s .1s step-start;
+    }
+
+    &.weavy-open {
+        pointer-events: all;
+        z-index: 5;
+
+        &.weavy-loading {
+            &::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                pointer-events: none;
+                // spinner.svg encoded with https://codepen.io/jakob-e/pen/doMoML
+                background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Cstyle type='text/css'%3Eg%7Banimation:rotate 2s linear infinite;transform-origin:center center%7Dcircle%7Bstroke-dasharray:1,100;stroke-dashoffset:0;animation:dash 1.5s ease-in-out infinite,color 6s ease-in-out infinite%7D@keyframes rotate%7B100%25%7Btransform:rotate(360deg)%7D%7D@keyframes dash%7B0%25%7Bstroke-dasharray:1,100;stroke-dashoffset:0%7D50%25%7Bstroke-dasharray:44.5,100;stroke-dashoffset:-17.5px%7D100%25%7Bstroke-dasharray:44.5,100;stroke-dashoffset:-62px%7D%7D@keyframes color%7B0%25,100%25%7Bstroke:%23216eb4%7D40%25%7Bstroke:%2328b7cf%7D66%25%7Bstroke:%23216eb4%7D80%25,90%25%7Bstroke:%2328b7cf%7D%7D%3C/style%3E%3Cg%3E%3Ccircle fill='none' cx='12' cy='12' r='11' stroke-linecap='butt' stroke-width='2' /%3E%3C/g%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: 50%;
+                background-size: rem(3);
+                background-color: transparent;
+            }
+        }
+    }
+}
+
+// Transitions
+.weavy-panel {
+    opacity: 0;
+    transition: opacity .1s $md-animation-duration $md-animation-curve-default, transform .1s $md-animation-duration step-start;
+
+    &.weavy-open {
+        opacity: 1;
+        transition: opacity .01s $md-animation-duration $md-animation-curve-default, transform .01s $md-animation-duration step-end;
+    }
+}
+
+.weavy-panel-frame {
+    flex: 1 1 100%;
+    border: 0;
+}

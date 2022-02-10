@@ -1,0 +1,94 @@
+﻿@using Microsoft.Owin.Security
+@using Weavy.Web.Controllers
+@model Weavy.Web.Models.SignInModel
+@{
+    Layout = "~/Views/Shared/_LayoutBasic.cshtml";
+    Title = T["Sign in"].ToString();
+}
+<div class="container mt-5">
+    <div class="row justify-content-sm-center">
+        <div class="col-sm-8 col-md-6 col-lg-5">
+            <div class="text-center mb-3">
+                @Html.IconImg(96)
+            </div>
+
+            @if (ConfigurationService.FormsAuthentication) {
+                using (Html.BeginForm(nameof(AccountController.SignIn), typeof(AccountController).ControllerName(), new { path = Model.Path }, FormMethod.Post, new { data_turboform = true, novalidate = "", data_weavy_event_notify = "signing-in" })) {
+                    <div class="form-group">
+                        @Html.EditorFor(x => x.Username, new { HideSurroundingHtml = true })
+                    </div>
+                    <div class="form-group">                        
+                        @(Html.ActionLink<AccountController>(c => c.RecoverPassword(), text: T["Recover password"], htmlAttributes: new { tabindex = "-1", @class = "float-right" }))
+                        @Html.EditorFor(x => x.Password, new { HideSurroundingHtml = true })
+                    </div>
+                    <div class="form-buttons align-items-baseline">
+                        @Html.EditorFor(x => x.RememberMe)
+                        <button type="submit" class="btn btn-primary btn-load ml-auto">@T["Sign in"]</button>
+                    </div>
+                }
+            }
+
+            @if (Model.AuthenticationTypes.Any()) {
+                if (ConfigurationService.FormsAuthentication) {
+                    <p class="text-center mt--3">&ndash; @T["or"] &ndash;</p>
+                }
+
+                <div class="d-standalone">
+                    @using (Html.BeginForm(nameof(AccountController.SignInExternal), typeof(AccountController).ControllerName(), new { path = ViewBag.Path }, FormMethod.Post)) {
+                        <div class="buttons text-center">
+                            @foreach (AuthenticationDescription ad in Model.AuthenticationTypes) {
+                                <button type="submit" class="btn btn-primary mb-3" id="@ad.AuthenticationType" name="provider" value="@ad.AuthenticationType">@Svg.Icon(ad.AuthenticationType) @T["Sign in with {0}", ad.Caption]</button>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <div class="d-framed">
+                    @using (Html.BeginForm(nameof(AccountController.SignInExternal), typeof(AccountController).ControllerName(), new { path = "/sign-in-embedded" }, FormMethod.Post, new { id = "embedded-providers", data_weavy_event_notify = "signing-in" })) {
+                        <div class="buttons text-center">
+                            @foreach (AuthenticationDescription ad in Model.AuthenticationTypes) {
+                            <button type="submit" class="btn btn-primary mb-3 embedded-provider" id="@(ad.AuthenticationType)_embedded" name="provider" value="@ad.AuthenticationType">@Svg.Icon(ad.AuthenticationType) @T["Sign in with {0}", ad.Caption]</button>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <script>
+                    if (wvy.browser.framed) {
+                        // catch the submit and open in new window to enable provider based sign in from iframes
+                        $('form#embedded-providers').on('submit', function (e) {
+                            var form = $(this);
+                            form.attr('target', 'auth-window');
+                            var win = window.open('about:blank', 'auth-window', 'width=400,height=600');
+
+                            // listen for distributed user event (user signed in) and then close to window
+                            var winClose = function (e) {
+                                var msg = e.data;
+                                if (msg.name === "distribute-authentication-event" && msg.eventName === "user") {
+                                    var authorized = msg.data && ($.isArray(msg.data) ? msg.data[0].authorized : msg.data.authorized);
+                                    if (authorized) {
+                                        if (win && !win.closed) {
+                                            console.debug("Authorized; closing auth window");
+                                            win.close();
+                                        }
+                                        wvy.postal.off("distribute", winClose);
+                                    }
+                                }
+                            };
+
+                            wvy.postal.on("distribute", winClose);
+                        });
+                    }
+                </script>
+            }
+        </div>
+    </div>
+</div>
+
+@if (ViewData.ModelState.Values.SelectMany(x => x.Errors).Any()) {
+    <script>
+        $(function () {
+            wvy.postal.postToParent({ name: "authentication-error" });
+        })
+    </script>
+}

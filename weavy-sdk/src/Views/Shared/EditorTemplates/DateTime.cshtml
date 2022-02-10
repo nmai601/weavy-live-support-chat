@@ -1,0 +1,41 @@
+﻿@model DateTime?
+@{
+    var attrs = new Dictionary<string, object>();
+    attrs["type"] = "datetime-local";
+    attrs["class"] = "form-control";
+
+    var meta = ViewData.ModelMetadata;
+
+    if (meta.IsReadOnly) {
+        attrs["readonly"] = null;
+    }
+
+    if (meta.IsRequired) {
+        attrs["required"] = null;
+    }
+
+    var error = ViewData.ErrorMessage();
+    if (error != null) {
+        attrs.Append("class", "is-invalid");
+    }
+
+    var placeholder = ViewData.PlaceholderText();
+    if (placeholder != null) {
+        attrs["placeholder"] = placeholder;
+    }
+}
+@if (ViewData.RenderSurroundingHtml()) {
+    WriteLiteral(@"<div class=""form-group"">");
+}
+@if (ViewData.RenderLabel()) {
+    @Html.LabelFor(m => m)
+}
+@Html.TextBox("", Model?.ToString("yyyy-MM-ddTHH:mm"), attrs)
+@if (error != null) {
+    <div class="invalid-feedback">@error</div>
+} else if (ViewData.RenderDescription()) {
+    <div class="form-text">@meta.Description</div>
+}
+@if (ViewData.RenderSurroundingHtml()) {
+    WriteLiteral(@"</div>");
+}

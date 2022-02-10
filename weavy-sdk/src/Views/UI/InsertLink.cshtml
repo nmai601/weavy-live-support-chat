@@ -1,0 +1,145 @@
+﻿@model IndexSearchResult
+@{
+    ViewBag.Title = T["Insert link"].ToString();
+    Layout = "_Layout.cshtml";
+    var propsActive = string.IsNullOrEmpty(Model.Query.WrappedQuery.Text);
+    var searchActive = !propsActive;
+    var attachments = ViewBag.Attachments as List<Weavy.Core.Models.Attachment>;
+    var isMarkdown = Request.QueryString["editortype"] == "markdown";
+
+}
+
+@section scripts {
+    <script>
+    var editorType = "@ViewBag.EditorType";
+
+    $(function () {
+
+        /* Insert link - TinyMCE
+        **************************************************************/
+        // link to value in url field
+        $(".ui-insertlink form.properties").on("submit", function (e) {
+            if (editorType === "html") {
+                e.preventDefault();
+                e.stopPropagation();
+
+                var form = $(this);
+                var field = form.find(".form-control");
+                var url = field.val();
+                if (url.length > 0) {
+                    var external = true;
+                    if (url.indexOf("/") === 0) {
+                        external = false;
+                    }
+
+                    window.parent.postMessage({
+                    mceAction: 'insertLink',
+                    url: url,
+                    text: url,
+                    external:external
+                }, '*');
+            }
+
+            return false;
+            }
+        });
+
+        // cancel button
+        $(".ui-insertlink form.properties .btn-secondary").on("click", function () {
+            if (editorType === "html") {
+                parent.tinymce.activeEditor.windowManager.close();
+                return false;
+            }
+
+        });
+
+        // link to attachment
+        $(".ui-insertlink #nav-attachments .list-group-item-action").on("click", function (e) {
+            e.preventDefault();
+            if (editorType === "html") {
+                 window.parent.postMessage({
+                    mceAction: 'insertLink',
+                    url: $(this).attr("href"),
+                    text: $.trim($(this).find(".media-title").text()),
+                    external:false
+                 }, '*');
+            }
+        });
+
+        // link to search result
+        $(".ui-insertlink .result a").on("click", function (e) {
+            if (editorType === "html") {
+                e.preventDefault();
+                e.stopPropagation();
+
+                window.parent.postMessage({
+                    mceAction: 'insertLink',
+                    url: $(this).attr("href"),
+                    text: $(this).data("text"),
+                    external:false
+                }, '*');
+            }
+        });
+    });
+    </script>
+}
+
+<div class="container-fluid">
+    <header class="page-header">
+        @if (isMarkdown) {
+            <button type="button" class="btn btn-transparent pull-right" data-close title="@T["Close"]">✕</button>
+            <div class="page-title">@T["Insert link"]</div>
+        }
+
+        <nav class="nav nav-tabs" role="tablist">
+            <a class="nav-item nav-link @(propsActive ? "active" : "")" href="@(Request.Path + Request.QueryString.Rebuild("q", null).AsQueryString())#props">@T["Properties"]</a>
+            <a class="nav-item nav-link" href="#nav-attachments" data-toggle="tab">@T["Attachments"] (@attachments.Count)</a>
+
+
+            <a class="nav-item nav-link @(searchActive ? "active" : "")" href="#nav-search" data-toggle="tab">@T["Search"]</a>
+
+        </nav>
+
+    </header>
+
+    <div class="tab-content mt-3">
+        <div class="tab-pane @(propsActive ? "active" : "")" id="nav-properties" role="tabpanel">
+            <form method="get" class="properties">
+                <div class="form-group">
+                    <label class="control-label" for="url">@T["Url"]</label>
+                    @Html.TextBox("url", Request.QueryString["url"], new { @class = "form-control", placeholder = "Paste or type a link..." })
+                </div>
+                <div class="buttons">
+                    <button type="submit" class="btn btn-primary">@T["Insert"]</button>
+                    <button type="button" class="btn btn-secondary" data-shortcut="Esc">@T["Cancel"]</button>
+                </div>
+            </form>
+
+        </div>
+        <div class="tab-pane" id="nav-attachments" role="tabpanel">
+            @{ Html.RenderPartial("_Attachments", attachments); }
+        </div>
+
+        <div class="tab-pane @(searchActive ? "active" : "")" id="nav-search" role="tabpanel" aria-labelledby="nav-search-tab">
+            <form method="get" class="ml-auto d-flex" role="search">
+
+                @Html.TextBox("q", Model.Query.WrappedQuery.Text, new { @class = "form-control submit", placeholder = "Search..." })
+                @Html.Hidden("id", Request.QueryString["id"])
+                @Html.Hidden("url", Request.QueryString["url"])
+                @Html.Hidden("editortype", Request.QueryString["editortype"])
+
+                @if (Model.Query.WrappedQuery.Text.IsNullOrWhiteSpace()) {
+                    <button type="submit" class="btn btn-icon" title="Search">@Svg.Icon("magnify")</button>
+                } else {
+                    <a class="btn btn-icon" href="@Url.Action(ActionName, new { id = Request.QueryString["id"], url = Request.QueryString["url"], editortype = Request.QueryString["editortype"], area = "" })" title="Clear search">@Svg.Icon("close")</a>
+                }
+            </form>
+            <div class="result">
+                @if (!Model.Query.WrappedQuery.Text.IsNullOrEmpty()) {
+                    <p>@Model.Description()</p>
+                }
+                @Html.Partial("_SearchResult", Model)
+            </div>
+        </div>
+    </div>
+</div>

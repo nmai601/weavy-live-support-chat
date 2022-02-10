@@ -1,0 +1,30 @@
+﻿@model int?
+@{
+    var source = ViewData["Source"] as Post;
+    var app = source?.App() as Posts;
+
+    // get spaces where we have Post permission
+    var spaces = SpaceService.Search(new SpaceQuery() { Archived = false, OrderBy = "Name" }).Where(x => x.HasPermission(Permission.Post));
+
+    //  get Posts apps for each space above
+    var apps = spaces.Select(s => AppService.GetApps<Posts>(s.Id).FirstOrDefault()).Where(a => a != null);
+}
+
+
+@if (ViewData.RenderSurroundingHtml()) {
+    WriteLiteral(@"<div class=""form-group"">");
+}
+
+@if (ViewData.RenderLabel()) {
+    <label for="@ViewData.TemplateInfo.GetFullHtmlFieldId("AppId")">@T["Space"]</label>
+}
+<select class="form-control custom-select app-picker" id="@ViewData.TemplateInfo.GetFullHtmlFieldId("AppId")" name="AppId">
+    @foreach (var a in apps) {
+        <option value="@a.Id" @if (a.SpaceId == source?.SpaceId.Value) { <text> selected</text>}>@a.Space().Name</option>
+    }
+</select>
+
+@if (ViewData.RenderSurroundingHtml()) {
+    WriteLiteral(@"</div>");
+}
+

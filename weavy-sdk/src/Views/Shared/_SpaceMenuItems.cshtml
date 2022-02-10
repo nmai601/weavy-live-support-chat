@@ -1,0 +1,73 @@
+﻿@model Space
+
+
+@if (Model.IsTrashed()) {
+    if (Model.HasPermission(Permission.Delete)) {
+        <form action="@(Url.Action<SpaceController>(c => c.Restore(Model.Id)))" method="post" data-turboform>
+            <button type="submit" class="dropdown-item" title="@T["Restore space"]">@Svg.Icon("backup-restore", "success") @T["Restore"]</button>
+        </form>
+        <form action="@(Url.Action<SpaceController>(c => c.Delete(Model.Id)))" method="post" data-turboform>
+            @Html.HttpMethodOverride(HttpVerbs.Delete)
+            <button type="submit" class="dropdown-item" title="@T["Permanently delete space"]">@Svg.Icon("delete", "danger") @T["Delete"]</button>
+        </form>
+    }
+} else {
+
+    if (Model.HasPermission(Permission.Edit)) {
+        <a class="dropdown-item" href="@(Url.Action<SpaceController>(c => c.Edit(Model.Id)))">@Svg.Icon("pencil", "primary") @T["Edit space"]</a>
+    }
+
+    if (Model.HasPermission(Permission.Admin) && !Model.IsMember) {
+        <form action="@(Url.Action<SpaceController>(c => c.Join(Model.Id)))" method="post" data-turboform>
+            <button type="submit" class="dropdown-item">@Svg.Icon("account-plus", "success") @T["Join space"]</button>
+        </form>
+    }
+
+    if (Model.HasPermission(Permission.Star)) {
+        @Html.StarToggle(Model, false, htmlAttributes: new { @class = "dropdown-item" })
+    }
+
+    if (Model.HasPermission(Permission.Follow)) {
+        @Html.SubscribeToggle(Model, new { @class = "dropdown-item" })
+
+    }
+
+    if (Model.HasPermission(Permission.View)) {
+        <a class="dropdown-item" href="@(Url.Action<SpaceController>(c => c.Members(Model.Id, null)))">@Svg.Icon("account-multiple", "success") @T["Members"]</a>
+    }
+
+    if (Model.HasPermission(Permission.List)) {
+        <a class="dropdown-item" href="@(Url.Action<SpaceController>(c => c.RecycleBin(Model.Id, null)))">@Svg.Icon("recycle", "green") @T["Recycle bin"]</a>
+    }
+
+    if (Model.HasPermission(Permission.Edit)) {
+
+        if (Model.IsArchived()) {
+            <form action="@(Url.Action<SpaceController>(c => c.Unarchive(Model.Id)))" method="post" data-turboform>
+                <button type="submit" class="dropdown-item">@Svg.Icon("archive", "orange") @T["Unarchive space"]</button>
+            </form>
+        } else {
+            <form action="@(Url.Action<SpaceController>(c => c.Archive(Model.Id)))" method="post" data-turboform>
+                <button type="submit" class="dropdown-item">@Svg.Icon("archive", "orange") @T["Archive space"]</button>
+            </form>
+        }
+        if (Model.HasPermission(Permission.Delete)) {
+            <form action="@(Url.Action<SpaceController>(c => c.Trash(Model.Id)))" method="post">
+                @Html.HttpMethodOverride(HttpVerbs.Delete)
+                <button type="submit" class="dropdown-item">@Svg.Icon("delete", "danger") @T["Trash space"]</button>
+            </form>
+        }
+    }
+
+    if (Model.IsMember) {
+        <form action="@(Url.Action<SpaceController>(c => c.Leave(Model.Id)))" method="post" data-turboform>
+            @Html.HttpMethodOverride(HttpVerbs.Delete)
+            <button type="submit" class="dropdown-item">@Svg.Icon("account-minus") @T["Leave space"]</button>
+        </form>
+
+    }
+
+}
+
+
+

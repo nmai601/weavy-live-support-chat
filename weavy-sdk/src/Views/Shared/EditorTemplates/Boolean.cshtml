@@ -1,0 +1,33 @@
+﻿@model bool?
+@{
+    var attrs = new Dictionary<string, object>();
+    attrs["type"] = "checkbox";
+    attrs["class"] = "custom-control-input";
+
+    var error = ViewData.ErrorMessage();
+    if (error != null) {
+        attrs.Append("class", "is-invalid");
+    }
+
+    var meta = ViewData.ModelMetadata;
+}
+
+@if (ViewData.RenderSurroundingHtml()) {
+    WriteLiteral(@"<div class=""form-group"">");
+}
+
+<div class="custom-control custom-checkbox">
+    @Html.CheckBox("", Model.HasValue && Model.Value, attrs)
+    @if (ViewData.RenderLabel()) {
+        @Html.LabelFor(m => m, new { @class = "custom-control-label" })
+    }
+    @if (error != null) {
+        <div class="invalid-feedback">@error</div>
+    } else if (ViewData.RenderDescription()) {
+        <div class="form-text d-inline">@meta.Description</div>
+    }
+</div>
+
+@if (ViewData.RenderSurroundingHtml()) {
+    WriteLiteral(@"</div>");
+}

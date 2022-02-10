@@ -1,0 +1,43 @@
+﻿@model User
+@{
+    Title = T["People"].ToString();
+    Back = Url.Action<PeopleController>(c => c.Index(null, null));
+    var profiledata = Html.DisplayGroups(Model.Profile, exclude: new[] { "Avatar", "Name" })?.ToHtmlString();
+}
+
+@section navbar_middle {
+    @Html.Partial("_NavbarMenu")
+}
+
+<div class="cover cover-bg cover-under-navbar">
+    <div class="top-left">@Html.Shield(Model)</div>
+    <div class="container text-center py-4">
+        @Model.AvatarImg(128)
+        @if (Model.Username == Model.GetTitle()) {
+            <p class="pt-2 mb-0">@@@Model.Username @Html.Badge(Model)</p>
+        } else {
+            <p class="pt-2 mb-0">@Model.GetTitle() <small>@@@Model.Username</small> @Html.Badge(Model)</p>
+        }
+    </div>
+    @if (Request.IsAjaxRequest()) {
+        <button type="button" class="btn btn-icon top-right" data-dismiss="modal">@Svg.Icon("close")</button>
+    } else {
+        <div class="top-right">@{ Html.RenderPartial("_UserMenu", Model);}</div>
+    }
+</div>
+
+@if (profiledata.IsNullOrWhiteSpace() && Model.Email == null) {
+    <div class="modal-body text-center">
+        @Svg.Spinner()
+    </div>
+} else {
+    <div class="container my-3">
+        @Html.Raw(profiledata)
+        @if (Model.Email != null) {
+            <div class="display-group" data-type="string">
+                <label class="font-weight-bold">@T["Email"]</label>
+                <div>@Html.DisplayFor(x => Model.Email)</div>
+            </div>
+        }
+    </div>
+}

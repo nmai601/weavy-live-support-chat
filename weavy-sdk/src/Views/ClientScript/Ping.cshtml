@@ -1,0 +1,18 @@
+﻿@{ 
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Pong</title>
+    <script>var wvy=wvy||{};@Html.ContextInfo()@Html.BrowserInfo()@Html.ConfigurationSettings()</script>
+    @Bundler.Scripts("~/scripts/src/utils.js", "~/scripts/src/promise.js", "~/scripts/src/console.js", "~/scripts/src/postal.js")
+</head>
+<body>
+    <script>
+        wvy.postal.postToParent({ name: "user-status", id: @WeavyContext.Current.User.Id });
+    </script>
+    pong
+</body>
+</html>

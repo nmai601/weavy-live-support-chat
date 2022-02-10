@@ -1,0 +1,160 @@
+/// <reference path="../_core.scss" />
+
+$drawer-left-width: 16rem !default; // 256px;
+$drawer-right-width: 20rem !default; // 320px;
+$zindex-drawer: $zindex-modal-backdrop - 1;
+$zindex-drawer-backdrop: $zindex-modal-backdrop - 2;
+
+
+
+
+// drawers (initially off screen)
+.drawer {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 80vw;
+    max-width: $drawer-left-width;
+    z-index: $zindex-drawer;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    background-color: $body-bg;
+    box-shadow: $md-shadow-8dp;
+    transition: transform, opacity;
+    will-change: transform, opacity;
+    transform-style: preserve-3d;
+    // transform off screen
+    transform: translateX(-($drawer-left-width + $md-shadow-8dp-width));
+    @include material-animation-default();
+
+    &.drawer-in {
+        // move drawer on screen
+        transform: translateX(0);
+    }
+}
+
+.drawer-right {
+    right: 0;
+    max-width: $drawer-right-width;
+    // transform off screen
+    transform: translateX($drawer-right-width + $md-shadow-8dp-width);
+}
+
+
+.drawer-header {
+    background-color: rgba($theme-800, .95);
+    padding: $navbar-padding-y $navbar-padding-x;
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    min-height: $navbar-height * 2;
+
+    &, a, .btn-icon {
+        color: color-yiq($theme-800) !important;
+    }
+
+    > .dropdown, > .btn-icon {
+        position: absolute;
+        top: $navbar-padding-y;
+        right: $navbar-padding-x;
+
+        .drawer-right & {
+            left: auto;
+            right: $navbar-padding-x;
+        }
+    }
+
+    .dropdown-menu a {
+        color: $dropdown-link-color !important;
+    }
+}
+
+.drawer-body {
+    flex: 1 1 auto;
+    position: relative;
+}
+
+.drawer-title {
+    margin: .5rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    > span {
+        @include text-truncate();
+    }
+}
+
+
+// backdrop (when drawer is open)
+.drawer-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: $zindex-drawer-backdrop;
+    visibility: hidden;
+    background-color: transparent;
+    transition-property: background-color;
+    @include material-animation-default();
+
+    .drawer-open & {
+        visibility: visible;
+        background-color: $backdrop-bg;
+    }
+
+    @supports (pointer-events: auto) {
+        background-color: $backdrop-bg;
+        opacity: 0;
+        transition-property: opacity;
+        visibility: visible;
+        pointer-events: none;
+
+        .drawer-open & {
+            pointer-events: auto;
+            opacity: 1;
+        }
+    }
+}
+
+#drawer-user {
+
+    .drawer-header {
+        padding: 0;
+    }
+
+    // Tabbable tabs
+    //
+    // Hide tabbable panes to start, show them when `.active`
+    .tab-content {
+        > .os-scrollbar-vertical {
+            top: $navbar-height;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .active {
+            display: block;
+        }
+    }
+    // special rules for embedded messenger
+    #tab-messages {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        overflow: hidden;
+
+        iframe {
+            border: none;
+            width: 100%;
+            height: 100%;
+        }
+    }
+}

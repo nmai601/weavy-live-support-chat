@@ -1,0 +1,36 @@
+﻿@model Weavy.Web.Models.RegisterWindowsModel
+@{
+    Layout = "~/Views/Shared/_LayoutBasic.cshtml";
+    Title = T["Associate account"].ToString();
+}
+<div class="container mt-5">
+    <div class="row justify-content-sm-center">
+        <div class="col-sm-6">
+            <header>
+                <div class="text-center mb-3">
+                    @Html.IconImg(48)
+                </div>
+                @if (Model.First) {
+                    <h1 class="display-3">@T["Confirm switch to Windows authentication"]</h1>
+                    <p>@T["Hi <strong>{0}</strong>, it looks like you recently switched from using local accounts to windows authentication.", Model.SamAccountName]</p>
+                    <p>@T["To complete the switch we need you to enter the credentials of a local administrator account."]</p>
+                } else {
+                    <h1 class="display-3">@T["Associate with existing account"]</h1>
+                    <p>@T["In order to avoid duplicate accounts we need you to enter your username and password and associate <strong>{0}</strong> with your existing local account.", Model.SamAccountName]</p>
+                }
+            </header>
+
+            @using (Html.BeginForm(nameof(AccountController.AddWindows), typeof(AccountController).ControllerName(), FormMethod.Post, new { data_turboform = true, novalidate = "" })) {
+                @Html.EditorsForModel()
+        <div class="form-buttons">
+            @if (Model.First) {
+                <button type="submit" class="btn btn-primary btn-load">@T["Confirm"]</button>
+            } else {
+                <button type="submit" class="btn btn-primary btn-load">@T["Associate"]</button>                
+                @(Html.ActionLink<AccountController>(c => c.RegisterWindows(), text: T["Cancel"], htmlAttributes: new { @class = "btn btn-secondary" }))
+            }
+        </div>
+            }
+        </div>
+    </div>
+</div>

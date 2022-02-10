@@ -1,0 +1,31 @@
+﻿@model RoleSearchResult
+@{
+    Title = T["Roles"].ToString();
+    Back = Url.Action<ManageController>(c => c.Index());
+}
+
+
+@section fab {
+    <div class="fab">
+        <a class="btn btn-round btn-primary" href="@(Url.Action<RolesController>(c => c.New()))" title="@T["Add role"]">@Svg.Icon("plus")</a>
+    </div>
+}
+
+
+@(Html.FilterForm<RolesController>(c => c.Index(null), Model.Query))
+
+<table class="table table-hover table-name-desc-count">
+    <thead>
+        <tr>
+            <th class="table-icon"></th>
+            <th>@T["Name"]</th>
+            <th>@T["Description"]</th>
+            <th class="text-right">@T["Members"]</th>
+            <th class="table-icon"></th>
+        </tr>
+    </thead>
+    <tbody id="infinite-scroll-target">
+        @{ Html.RenderPartial("_RoleTable", Model); }
+    </tbody>
+</table>
+@Html.ScrollMore(Model)

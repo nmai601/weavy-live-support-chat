@@ -1,0 +1,40 @@
+﻿@model UserSearchResult
+@{
+    Title = T["Authentication clients"].ToString();
+    Back = Url.Action<ManageController>(c => c.Index());
+    var category = ViewContext.RouteData.Values["category"] as string;
+}
+
+@section fab {
+    <div class="fab">
+        <a class="btn btn-round btn-primary" href="@(Url.Action<ClientController>(c => c.New()))" title="@T["Create client"]">@Svg.Icon("plus")</a>
+    </div>
+}
+
+
+@if (Model.HasItems()) {
+    <table class="table table-hover table-name-desc">
+        <thead>
+            <tr>
+                <th class="table-icon"></th>
+                <th>@T["Display Name"]</th>
+                <th>@T["Client Id"]</th>
+                <th class="table-icon"></th>
+            </tr>
+        </thead>
+        <tbody id="infinite-scroll-target">
+            @{ Html.RenderPartial("_Clients", Model); }
+        </tbody>
+    </table>
+    @Html.ScrollMore(Model)
+
+} else {
+    <p class="text-muted text-center pt-3">@T["There are no configured authentication clients yet."] <a href="@(Url.Action<ClientController>(c=>c.New()))">@T["Do you want to create an authentication client?"]</a></p>
+}
+
+@if (Model.Query.Trashed ?? false) {
+    <p class="text-muted text-center"><small><a href="@(Url.Action<ClientController>(c => c.Index(null, null)))">@T["Back to active clients."]</a></small></p>
+} else if ((ViewBag.Trashed ?? false)) {
+    <p class="text-muted text-center"><small><a href="@(Url.Action<ClientController>(c => c.Index(null, "trashed")))">@T[@"See trashed clients."]</a></small></p>
+}
+

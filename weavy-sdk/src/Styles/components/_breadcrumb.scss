@@ -1,0 +1,96 @@
+/// <reference path="../_core.scss" />
+
+.breadcrumb {
+    flex-wrap: nowrap;
+    min-width: 0; // needed for text-truncate
+}
+
+.breadcrumb-item {
+    display: flex;
+    flex-wrap: nowrap;
+    flex: 0 10 auto;
+    min-width: 2rem;
+    max-width: 10rem;
+
+    a {
+        position: relative;
+        display: flex;
+        min-width: 0; // needed for text-truncate
+        color: $panel-color;
+        padding: 0 .25rem;
+
+        &::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+
+        .i {
+            display: none; // hide folder icons
+            margin-right: $navbar-padding-x;
+        }
+
+        span {
+            @include text-truncate();
+        }
+        // highlight drop-target
+        &.drop-target {
+            background-color: color("amber", 100);
+
+            &::after {
+                border: $card-border-width*2 dashed $amber;
+            }
+        }
+    }
+    // display folder icon for "root" folder
+    &:first-child {
+        min-width: 4rem;
+
+        a {
+            .i {
+                display: block;
+            }
+            span {
+                padding:0;
+            }
+        }
+    }
+
+    > .i {
+        color: $text-muted;
+    }
+}
+
+.breadcrumb-item.active {
+    min-width: auto;
+    max-width: none;
+    flex: 0 1 auto;
+    display: block;
+    @include text-truncate();
+    color: inherit;
+    font-weight: $headings-font-weight;
+
+    span {
+        padding: 0 .25rem;
+    }
+}
+
+// hide all ancestors except immediate parent on small devices
+@include media-breakpoint-down(sm) {
+    .breadcrumb-item {
+        display: none;
+    }
+
+    .breadcrumb-item:nth-last-child(2) {
+        display: flex;
+        min-width: 4rem;
+
+        a .i {
+            // display folder icon
+            display: block;
+        }
+    }
+}

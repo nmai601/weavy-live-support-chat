@@ -1,0 +1,41 @@
+﻿@model Weavy.Core.Models.File
+
+@{
+    Layout = "~/Views/Content/_Layout.Embedded.cshtml";
+    Title = @T["Edit {0}", Model.MetaData().Name].ToString();
+    Back = Url.Back(Model.Url());
+    ViewData["turboform"] = true;
+}
+
+@section navbar_left {
+    <div class="navbar-icons">
+        @Html.Partial("_NavbarClose")
+    </div>
+}
+
+@section navbar_middle {
+    <div class="navbar-middle">
+        <div class="navbar-form">
+            <div class="form-group autosize">
+                @Html.EditorFor(x => Model.Name, new { __html = false, __label = false, _desc = false, __form = "#content-form" })
+                <span class="form-control">@Model.Name</span>
+            </div>
+        </div>
+    </div>
+}
+
+@section navbar_right {
+    <div class="navbar-icons">
+        @Html.Partial("_NavbarIcons")
+    </div>
+}
+
+@{ Html.RenderPartial("_Edit", Model); }
+
+@if (Html.HasHtmlEditor()) {
+    @section scripts{
+        @Html.InitHtmlEditor()
+    }
+}
+
+

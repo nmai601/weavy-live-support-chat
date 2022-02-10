@@ -1,0 +1,25 @@
+/// <reference path="../client.scss" />
+
+// Widget variables
+
+// Set --weavy-rem: 16px; in :root or on the shadow-root-element to change widget rem
+
+$client-default-rem: 16px;
+
+@function rem($value) {
+    @return $client-default-rem * $value;
+    // NOTE: IE/Edge dose not handle --weavy-rem very good (on high dpi display?)
+    // Edge does unfortunately not fully support calc() in box-shadow and transform, otherwise --variables work
+    //@return calc(var(--weavy-rem, #{$widget-default-rem}) * #{$value}); // Defaults to 16px
+
+}
+
+// Widget variables
+$client-panel-width: rem(24); // 384px, previously 375px;
+$client-zindex: 2147483647; // max possible z-index
+$client-border-radius: rem(.25);
+$client-icon-size: rem(2.5);
+
+// Alert
+$client-alert-background: theme-color-level("primary", $alert-bg-level);
+$client-alert-color: theme-color-level("primary", $alert-color-level);

@@ -1,0 +1,78 @@
+﻿@model HomeModel
+
+@{
+    Title = T["Start"].ToString();
+}
+
+@section navbar_left {
+    <div class="navbar-icons">
+        <a class="btn btn-icon" href="@WeavyContext.ApplicationPath">@Html.IconImg(24)</a>
+    </div>
+}
+
+@section navbar_middle {
+    @Html.Partial("_NavbarMenu")
+}
+
+<div class="cover">
+    <div class="container d-flex flex-column">
+        <div class="my-4 d-flex flex-column align-items-center mx-auto align-self-center">
+            @Html.IconImg(128)
+        </div>
+        <form action="@(Url.Action<HomeController>(c => c.Search(null, null)))" method="get" class="main-search" data-turboform>
+            <div class="form-group" role="search">
+                <input id="weavy-main-search" class="form-control" type="search" name="q" value="" placeholder="@T["Search"]" />
+                <button type="submit" class="btn btn-icon">@Svg.Icon("magnify")</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="container d-flex flex-column my-4">
+
+    <h5 class="d-flex">
+        <a href="@(Url.Action<SpaceController>(c => c.Index(null, null)))" class="text-hyphens">@T["Spaces"]</a>
+        <a href="@(Url.Action<SpaceController>(c => c.New()))" class="btn btn-icon ml-auto" title="@T["Add space"]">@Svg.Icon("plus-box-outline")</a>
+    </h5>
+
+    @if (Model.Spaces.Any()) {
+        <div class="space-cards">
+            @foreach (var space in Model.Spaces) {
+                <a class="card" href="@space.Url()">
+                    <div class="card-cover">
+                        @space.AvatarImg(64)
+                        <div class="facepile">
+                            @SpaceService.GetMembers(space.Id, new MemberQuery { Top = 5, OrderBy = "Random" }).Facepile(size: 24)
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-title text-truncate" title="@space.Name">@space.Name</div>
+                    </div>
+                    @Html.StarToggle(space)
+                </a>
+            }
+        </div>
+    } else {
+<p class="text-muted">
+    @T["All your spaces will show up here."]
+    <a href="@(Url.Action<SpaceController>(c => c.New()).ToLower())">@T[@"We suggest creating your first space to get started."]</a>
+</p>
+    }
+</div>
+
+<div class="container d-flex flex-column my-4">
+
+    <h5 class="d-flex">
+        <a href="@(Url.Action<PeopleController>(c => c.Index(null, null)))" class="text-hyphens">@T["People"]</a>
+        @if (PermissionService.HasPermission(Permission.Manage)) {
+            <a class="btn btn-icon ml-auto" href="@(Url.Action<PeopleController>(c => c.New()))" title="@T["Add user"]">@Svg.Icon("account-plus")</a>
+        }
+    </h5>
+
+    <div class="facepile facepile-lg">
+        @Model.People.Facepile(size: 48, link: true)
+        @if (Model.People.HasNextPage) {
+            <a href="@(Url.Action<PeopleController>(c => c.Index(null, null)))" class="btn btn-round btn-light" title="@T["More people"]">@Svg.Icon("dots-horizontal", color: "icon")</a>
+        }
+    </div>
+</div>

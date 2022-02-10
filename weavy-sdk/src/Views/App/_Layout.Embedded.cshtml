@@ -1,0 +1,35 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.Embedded.cshtml";
+}
+
+@if (IsSectionDefined("styles")) {
+    @section styles {
+        @RenderSection("styles")
+    }
+}
+
+@if (IsSectionDefined("scripts")) {
+    @section scripts {
+        @RenderSection("scripts")
+    }
+}
+
+@if (IsSectionDefined("navbar_tertiary")) {
+    @section navbar_tertiary {
+        @RenderSection("navbar_tertiary")
+    }
+}
+
+@RenderBody()
+
+@if (IsSectionDefined("fab")) {
+    @section fab {
+        @RenderSection("fab")
+    }
+}
+
+@if (IsSectionDefined("footer")) {
+    @section footer {
+        @RenderSection("footer")
+    }
+}
