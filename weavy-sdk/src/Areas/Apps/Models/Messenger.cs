@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -34,6 +34,11 @@ namespace Weavy.Areas.Apps.Models {
         /// Id of the selected conversation.
         /// </summary>
         public int? ConversationId { get; set; }
+
+        /// <summary>
+        /// Type of conversations to load
+        /// </summary>
+        public string View { get; set; } = "open";
 
         /// <summary>
         /// The active conversation.

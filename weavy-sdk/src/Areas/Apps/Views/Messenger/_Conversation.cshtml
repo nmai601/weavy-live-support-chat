@@ -2,11 +2,23 @@
 @{
     // different actions depending on if we are rendering full messenger or conversation only
     Messenger messenger = ViewBag.Messenger;
+    var isAgent = WeavyContext.Current.User.IsInRole("Agent");
+    var isMember = Model.MemberIds.Contains(WeavyContext.Current.User.Id);
+    var ticketClass = "";
+    if(isAgent){
+        if((string)Model["ticket_type"]=="unclaimed"){
+            ticketClass = "unclaimed";
+        } else if (isMember && (string)Model["ticket_type"] == "closed"){
+            ticketClass = "closed";
+        }
+        else if (isMember){
+            ticketClass = "open";
+        }
+    }
     var lastMessage = Model.LastMessage;
     var href = messenger.IsMessenger ? Url.Action<MessengerController>(c => c.Messenger(Model.Id, null)): Url.Action<MessengerController>(c => c.Conversation(Model.Id));
 }
-
-<a href="@href" data-action="load" data-id="@Model.Id" class="list-group-item list-group-item-action conversation@(Model.IsRoom ? " room" : "")@(Model.IsPinned ? " pinned" : "")@(Model.IsStarred() ? " starred" : "")@(Model.IsRead ? "" :" unread")@(messenger.Conversation?.Id == Model.Id ? " active" : "")">
+<a href="@href" data-action="load" data-id="@Model.Id" class="list-group-item list-group-item-action conversation @(ticketClass)@(Model.IsRoom ? " room" : "")@(Model.IsPinned ? " pinned" : "")@(Model.IsStarred() ? " starred" : "")@(Model.IsRead ? "" :" unread")@(messenger.Conversation?.Id == Model.Id ? " active" : "") d-none">
     <div class="media">
         <div class="img-48 mr-3">
             @Model.AvatarImg(size:48, presence: true)

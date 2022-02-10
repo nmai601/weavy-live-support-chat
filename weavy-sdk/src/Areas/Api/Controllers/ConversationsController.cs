@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Web.Http;
 using System.Web.Http.Description;
+using NLog;
 using Weavy.Core;
 using Weavy.Core.Localization;
 using Weavy.Core.Models;
@@ -21,6 +22,7 @@ namespace Weavy.Areas.Api.Controllers {
     [RoutePrefix("api")]
     public class ConversationsController : WeavyApiController {
 
+        private static readonly Logger _log = LogManager.GetCurrentClassLogger();
         private static readonly StringLocalizer T = StringLocalizer.CreateInstance();
 
         /// <summary>
@@ -81,7 +83,7 @@ namespace Weavy.Areas.Api.Controllers {
             // create new room or one-on-one conversation or get the existing one
             return Ok(ConversationService.Insert(new Conversation() { Name = name }, model.Members));
         }
-
+        
         /// <summary>
         /// Get the messages in the specified conversation.
         /// </summary>
@@ -128,10 +130,13 @@ namespace Weavy.Areas.Api.Controllers {
         [ResponseType(typeof(Conversation))]
         [Route("conversations/{id:int}/typing")]
         public IHttpActionResult StartTyping(int id) {
-            var conversation = GetConversation(id);
-            // push typing event to other conversation members
-            PushService.PushToUsers(PushService.EVENT_TYPING, new { Conversation = id, User = WeavyContext.Current.User, Name = WeavyContext.Current.User.Profile.Name ?? WeavyContext.Current.User.Username }, conversation.MemberIds.Where(x => x != WeavyContext.Current.User.Id));
-            return Ok(conversation);
+            if (ConfigurationService.Typing) {
+                // push typing event to other conversation members
+                var conversation = GetConversation(id);
+                PushService.PushToUsers(PushService.EVENT_TYPING, new { Conversation = id, User = WeavyContext.Current.User, Name = WeavyContext.Current.User.Profile.Name ?? WeavyContext.Current.User.Username }, conversation.MemberIds.Where(x => x != WeavyContext.Current.User.Id));
+                return Ok(conversation);
+            }
+            return BadRequest();
         }
 
         /// <summary>

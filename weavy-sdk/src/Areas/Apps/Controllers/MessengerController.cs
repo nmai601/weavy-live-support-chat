@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +12,7 @@ using System.Web.SessionState;
 using NLog;
 using Weavy.Areas.Apps.Models;
 using Weavy.Core;
+using Weavy.Core.Collections;
 using Weavy.Core.Models;
 using Weavy.Core.Services;
 using Weavy.Core.Utils;
@@ -87,7 +88,14 @@ namespace Weavy.Areas.Apps.Controllers {
                 }
             } else {
                 // get most recent conversation
-                model.Conversation = ConversationService.Search(new ConversationQuery { OrderBy = "PinnedAt DESC, LastMessageAt DESC", Top = 1 }).FirstOrDefault();
+                if (WeavyContext.Current.User.IsInRole("Agent"))
+                {
+                    model.Conversation = ConversationService.Search(new ConversationQuery { OrderBy = "PinnedAt DESC, LastMessageAt DESC", Sudo = true, UserId = null }).FirstOrDefault();
+                }
+                else
+                {
+                    model.Conversation = ConversationService.Search(new ConversationQuery { OrderBy = "PinnedAt DESC, LastMessageAt DESC", Top = 1, UserId = User.Id }).FirstOrDefault();
+                }
             }
 
             if (model.Conversation != null) {
@@ -112,16 +120,34 @@ namespace Weavy.Areas.Apps.Controllers {
 
             // NOTE: we load conversations last so that selected conversation does not appear unread in the list
             var query = new ConversationQuery(opts);
-            query.UserId = User.Id;
             query.OrderBy = "PinnedAt DESC, LastMessageAt DESC";
+            if (WeavyContext.Current.User.IsInRole("Agent"))
+            {
+                query.UserId = null;
+                query.Sudo = true;
+            }
+            else
+            {
+                query.UserId = User.Id;
+            }
             model.Conversations = ConversationService.Search(query);
+            var result = new List<Conversation>();
+            var convoIds = new HashSet<int>();
+            foreach (var convo in model.Conversations)
+            {
+                if (!convoIds.Contains(convo.Id))
+                {
+                    convoIds.Add(convo.Id);
+                    result.Add(convo);
+                }
+            }
+            model.Conversations = new ConversationSearchResult(query, result, null);
 
             // make sure selected conversation is visible in conversations list
             while (model.Conversation != null && !model.Conversations.Any(x => x.Id == model.Conversation.Id)) {
                 query.Top += PageSizes.First();
                 model.Conversations = ConversationService.Search(query);
             }
-
             return View(nameof(Messenger), model);
         }
 
@@ -137,7 +163,7 @@ namespace Weavy.Areas.Apps.Controllers {
             var conversation = ConversationService.Insert(new Conversation(), users);
             return RedirectToAction<MessengerController>(c => c.Messenger(conversation.Id, null));
         }
-
+                
         /// <summary>
         /// Post new message into specified conversation then redirect back to full messenger.
         /// </summary>
@@ -195,13 +221,30 @@ namespace Weavy.Areas.Apps.Controllers {
 
             // limit page size to 25
             query.Top = Math.Min(query.Top ?? MAX_PAGE_SIZE, MAX_PAGE_SIZE);
-
-            var cq = new ConversationQuery(query);
-            cq.UserId = User.Id;
-            cq.OrderBy = "PinnedAt DESC, LastMessageAt DESC";
-
             var model = new Messenger();
+           
+            var cq = new ConversationQuery(query);
+            if (WeavyContext.Current.User.IsInRole("Agent"))
+            {
+                cq.Sudo = true;
+                cq.UserId = null;
+            }
+            else
+            {
+                cq.UserId = User.Id;
+            }
             model.Conversations = ConversationService.Search(cq);
+            var result = new List<Conversation>();
+            var convoIds = new HashSet<int>();
+            foreach(var convo in model.Conversations)
+            {
+                if (!convoIds.Contains(convo.Id))
+                {
+                    convoIds.Add(convo.Id);
+                    result.Add(convo);
+                }
+            }
+            model.Conversations = new ConversationSearchResult(cq, result, null);
 
             // search or infinite scroll, return partial view
             if (Request.IsAjaxRequest()) {
@@ -231,6 +274,22 @@ namespace Weavy.Areas.Apps.Controllers {
                 });
             var user = UserService.Update(User);
             return Json(new MessengerSettings(user));
+        }
+        
+        /// <summary>
+        /// Update feedback.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="rating"></param>
+        /// <returns>The updated user.</returns>
+        [HttpPost]
+        [Route(ControllerUtils.ROOT_PREFIX + MESSENGER_PREFIX + "c/{id:int}/feedback")]
+        public HttpStatusCodeResult InsertFeedback(int id, int? rating)
+        {
+            var convo = ConversationService.Get(id);
+            convo["feedback"] = rating;
+            ConversationService.Update(convo);
+            return new HttpStatusCodeResult(HttpStatusCode.OK);
         }
 
         /// <summary>
@@ -528,6 +587,42 @@ namespace Weavy.Areas.Apps.Controllers {
         }
 
         /// <summary>
+        /// Close ticket.
+        /// </summary>
+        /// <param name="id">Id of conversation.</param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ControllerUtils.ROOT_PREFIX + MESSENGER_PREFIX + "/c/{id:int}/close-ticket")]
+        [Route(ControllerUtils.EMBEDDED_PREFIX + MESSENGER_PREFIX + "/c/{id:int}/close-ticket", Name = nameof(MessengerController) + nameof(CloseTicket), Order = 1)]
+        public ActionResult CloseTicket(int id)
+        {
+            var convo = ConversationService.Get(id);
+            convo["ticket_type"] = "closed";
+            convo = ConversationService.Update(convo);
+            var msg = new Message() { CreatedById = -2, Html = $"The ticket is now closed. <button class='btn btn-primary btn-icon' data-toggle='modal' data-target='#feedback-modal' style='align-items:start'>Leave rating</button>" };
+            MessageService.Insert(msg, convo, sudo: true);
+            _log.Info(WeavyContext.Current.User.SerializeToJson());
+            return RedirectToAction<MessengerController>(c => c.Index(null));
+        }
+
+        /// <summary>
+        /// Claim ticket.
+        /// </summary>
+        /// <param name="id">Id of conversation.</param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ControllerUtils.ROOT_PREFIX + MESSENGER_PREFIX + "/c/{id:int}/claim-ticket")]
+        [Route(ControllerUtils.EMBEDDED_PREFIX + MESSENGER_PREFIX + "/c/{id:int}/claim-ticket", Name = nameof(MessengerController) + nameof(ClaimTicket), Order = 1)]
+        public ActionResult ClaimTicket(int id)
+        {
+            var conversation = ConversationService.Get(id, sudo:true);
+            ConversationService.AddMember(id, WeavyContext.Current.User.Id, sudo:true);
+            conversation["ticket_type"] = "open";
+            ConversationService.Update(conversation);
+            return RedirectToAction<MessengerController>(c => c.Messenger(conversation.Id, null));
+        }
+
+        /// <summary>
         /// Called by current user to indicate that they are typing in a conversation.
         /// </summary>
         /// <param name="id">Id of conversation.</param>
@@ -535,10 +630,13 @@ namespace Weavy.Areas.Apps.Controllers {
         [HttpPost]
         [Route(ControllerUtils.ROOT_PREFIX + MESSENGER_PREFIX + "/c/{id:int}/typing")]
         public HttpStatusCodeResult Typing(int id) {
-            var conversation = ConversationService.Get(id);
-            // push typing event to other conversation members
-            PushService.PushToUsers(PushService.EVENT_TYPING, new TypingModel { Conversation = id, User = WeavyContext.Current.User }, conversation.MemberIds.Where(x => x != WeavyContext.Current.User.Id));
-            return new HttpStatusCodeResult(HttpStatusCode.OK);
+            if (ConfigurationService.Typing) {
+                // push typing event to other conversation members
+                var conversation = ConversationService.Get(id);
+                PushService.PushToUsers(PushService.EVENT_TYPING, new TypingModel { Conversation = id, User = WeavyContext.Current.User }, conversation.MemberIds.Where(x => x != WeavyContext.Current.User.Id));
+                return new HttpStatusCodeResult(HttpStatusCode.OK);
+            }
+            return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
         }
 
         /// <summary>
@@ -625,6 +723,7 @@ namespace Weavy.Areas.Apps.Controllers {
                 _log.Warn(ex.Message);
             }
         }
+  
 
     }
 }

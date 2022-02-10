@@ -54,8 +54,11 @@
         var console = new WeavyConsole("WeavyConnection");
 
         var initialized = false;
+        var reconnecting = false;
 
-        var connectionUrl = "/signalr";
+        // use configured transport or fallback to "auto"
+        // REVIEW: looks like it performs negotiation even if we explicitly specify a transport?
+        var transport = wvy.config && wvy.config.transport || "auto";
 
         // Set explicit self url
         url = url || window.location.origin + (wvy.config && wvy.config.applicationPath || "/");
@@ -63,13 +66,21 @@
         // Remove trailing slash
         url = /\/$/.test(url) ? url.slice(0, -1) : url;
 
-        connectionUrl = url + connectionUrl;
+        var connectionUrl = url + "/signalr";
 
         // create a new hub connection
         var connection = $.hubConnection(connectionUrl, { useDefaultPath: false });
 
-        var reconnecting = false;
-        var hubProxies = { rtm: connection.createHubProxy('rtm'), client: connection.createHubProxy('client') };
+        // configure logging and connection lifetime events
+        //connection.logging = true;
+
+        // create hub proxy (why multiple? do we have a client hub?)
+        //var hubProxies = { rtm: connection.createHubProxy('rtm'), client: connection.createHubProxy('client') }; 
+        var hubProxies = { rtm: connection.createHubProxy('rtm') };
+
+        // we have to register (at least one) event handler before calling the start method
+        hubProxies["rtm"].on("eventReceived", rtmEventRecieved);
+
         var _events = [];
         var _reconnectMessageTimeout = null;
         var _reconnectInterval = null;
@@ -143,8 +154,13 @@
             }
 
             if (connectAfterInit) {
-                // connect to the server?
-                return connect();
+                // Only explicitly connect the leader
+                return whenLeaderElected().then(function (leader) {
+                    if (leader) {
+                        connectionStart();
+                    }
+                    return whenConnected();
+                });
             } else {
                 return whenLeaderElected();
             }
@@ -170,8 +186,9 @@
                     state = states.connecting;
                     triggerEvent("state-changed.connection.weavy", { state: state });
 
-                    whenConnectionStart = connection.start().always(function () {
-                        console.debug((childConnection ? "child " : "") + "connection started")
+                    whenConnectionStart = connection.start({ transport: transport }).always(function () {
+                        console.debug((childConnection ? "child " : "") + "connection started");
+                        wvy.postal.postToChildren({ name: "connection-started", weavyId: "wvy.connection", connectionUrl: connectionUrl });
                         whenConnected.resolve();
                     }).catch(function (error) {
                         console.warn((childConnection ? "child " : "") + "could not start connection")
@@ -204,10 +221,14 @@
 
         function disconnectAndConnect() {
             return new Promise(function (resolve) {
-                explicitlyDisconnected = false;
-                disconnect(true, false).then(function () {
-                    connect().then(resolve);
-                });
+                if (!childConnection && connection.state !== states.disconnected) {
+                    explicitlyDisconnected = false;
+                    disconnect(true, false).then(function () {
+                        connect().then(resolve);
+                    });
+                } else {
+                    resolve();
+                }
             });
         }
 
@@ -343,8 +364,7 @@
         }
 
 
-        // configure logging and connection lifetime events
-        connection.logging = false;
+
 
         connection.stateChanged(function (connectionState) {
             // Make sure connectionState is int
@@ -419,18 +439,17 @@
                 window.clearInterval(_reconnectInterval);
 
                 if (reconnecting) {
-                    connection.start().catch((reason) => {
+                    connection.start({ transport: transport }).catch((reason) => {
                         console.warn("could not connect", reason)
 
-                    });;
+                    });
                     reconnecting = false;
                 } else {
                     // connection dropped, try to connect again after 5s
                     _reconnectInterval = window.setInterval(function () {
                         if (window.navigator.onLine) {
-                            connection.start().catch((reason) => {
+                            connection.start({ transport: transport }).catch((reason) => {
                                 console.warn("could not reconnect", reason)
-
                             });
                             window.clearInterval(_reconnectInterval)
                         } else {
@@ -445,7 +464,6 @@
 
         });
 
-
         // REALTIME EVENTS
 
         // generic callback used by server to notify clients that a realtime event happened
@@ -455,8 +473,6 @@
             name = name.indexOf(".rtmweavy" === -1) ? name + ".rtmweavy" : name;
             triggerEvent(name, args);
         }
-
-        hubProxies["rtm"].on("eventReceived", rtmEventRecieved);
 
         // REALTIME CROSS WINDOW MESSAGE
         // handle cross frame events from rtm
@@ -650,7 +666,7 @@
                 WeavyUtils.ready(function () {
                     setTimeout(function () {
                         if (_connections.size === 1) {
-                            connection.init(wvy.authentication.default);
+                            connection.init(true, wvy.authentication.default);
                         }
                     }, 1);
                 });

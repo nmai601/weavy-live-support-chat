@@ -1,4 +1,7 @@
 ﻿@model Conversation
+@{
+    var isAgent = WeavyContext.Current.User.IsInRole("Agent");
+}
 <div class="dropdown-menu dropdown-menu-right conversation-menu">
     @* menu contains all possible actions, individual item are hidden with css like .starred, .unread etc. on parent element *@
     <button type="button" class="dropdown-item" data-action="show-info">@T["Show info"]</button>
@@ -9,10 +12,14 @@
     <button type="button" class="dropdown-item" data-action="unpin" data-id="@Model.Id">@T["Unpin conversation"]</button>
     <button type="button" class="dropdown-item" data-action="read" data-id="@Model.Id">@T["Mark as read"]</button>
     <button type="button" class="dropdown-item" data-action="unread" data-id="@Model.Id">@T["Mark as unread"]</button>
-    @if (Model.IsRoom && Model.HasPermission(Permission.Members)) {
+    @*@if (Model.IsRoom && Model.HasPermission(Permission.Members)) {*@
+    @if (isAgent)
+    {
         <button type="button" class="dropdown-item" data-action="add-people" data-id="@Model.Id">@T["Add people"]</button>
+        <button type="button" class="dropdown-item" data-action="leave" data-id="@Model.Id">@T["Leave conversation"]</button>
+        <button type="button" class="dropdown-item" data-action="close-ticket" data-id="@Model.Id">@T["Close Ticket"]</button>
+        <button type="button" class="dropdown-item" data-action="claim-ticket" data-id="@Model.Id">@T["Claim Ticket"]</button>
     }
-    <button type="button" class="dropdown-item" data-action="leave" data-id="@Model.Id">@T["Leave conversation"]</button>
     @*<button type="button" class="dropdown-item" data-action="archive" data-id="@Model.Id">Archive conversation</button>*@
 
 </div>

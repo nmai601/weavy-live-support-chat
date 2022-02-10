@@ -3,6 +3,24 @@
     Layout = null;
     BodyAttributes.Add("class", "single");
     BodyAttributes.Add("class", "two");
+    var isAgent = WeavyContext.Current.User.IsInRole("Agent");
+    var isMember = Model.Conversation.MemberIds.Contains(WeavyContext.Current.User.Id);
+    var ticketClass = "";
+    if (isAgent)
+    {
+        if ((string)Model["ticket_type"] == "unclaimed")
+        {
+            ticketClass = "unclaimed";
+        }
+        else if (isMember && (string)Model["ticket_type"] == "closed")
+        {
+            ticketClass = "closed";
+        }
+        else if (isMember)
+        {
+            ticketClass = "open";
+        }
+    }
 }
 <!DOCTYPE html>
 <html @RenderHtmlAttributes()>
@@ -19,7 +37,7 @@
 </head>
 <body @RenderBodyAttributes()>
     <script>@Html.ContextInfo()@Html.UserSettings()</script>
-    <main id="main" class="pane conversation@(Model.Conversation.IsRoom ? " room" : "")@(Model.Conversation.IsPinned ? " pinned" : "")@(Model.Conversation.IsStarred() ? " starred" : "")@(Model.Conversation.IsRead ? "" :" unread")" data-id="@(Model.Conversation.Id)">
+    <main id="main" class="pane conversation @(ticketClass)@(Model.Conversation.IsRoom ? " room" : "")@(Model.Conversation.IsPinned ? " pinned" : "")@(Model.Conversation.IsStarred() ? " starred" : "")@(Model.Conversation.IsRead ? "" :" unread")" data-id="@(Model.Conversation.Id)">
         <header class="pane-header">
             <div class="pane-actions">
                 <a href="@(Url.Action<MessengerController>(c => c.Conversation(Model.Conversation.Id)))" class="btn btn-icon btn-avatar">@Model.Conversation.AvatarImg(24)</a>
