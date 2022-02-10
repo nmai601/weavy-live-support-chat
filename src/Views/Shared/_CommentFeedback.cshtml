@@ -1,0 +1,13 @@
+﻿@model Comment
+@if (Model.IsLiked()) {
+    <a class="btn btn-primary btn-icon" href="#" title="@T["Unlike"]" data-comment-unlike="@Model.Id">@Svg.Icon("thumb-up", size: 18)</a>
+} else {
+    <a class="btn btn-primary btn-icon" href="#" title="@T["Like"]" data-comment-like="@Model.Id">@Svg.Icon("thumb-up-outline", size: 18)</a>
+}
+<a class="likes" href="#" data-toggle="modal" data-target="#feedback-modal" data-path="/comments/@Model.Id/likes" data-modal-title="@T["Comment liked by"]" title="@T["Show likes"]">
+    @if (Model.LikedByIds.Any()) {
+        @T[Model.LikedByIds.Count(), "{0} like"]        
+    }
+</a>
+
+

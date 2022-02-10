@@ -1,0 +1,62 @@
+/// <reference path="../client.scss" />
+
+// Full window preview mode
+
+.weavy-overlay {
+    .weavy-panels.weavy-preview {
+        pointer-events: none;
+        width: auto;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        max-width: none;
+        overflow-y: hidden;
+
+        .weavy-panel {
+            background-color: rgba(mix($black, #000), $opacity-panel);
+
+            &:not(.weavy-open) {
+                // Move panel when not open to avoid mousewheel hi-jacking
+                transform: translateY(100vh) !important;
+            }
+
+            .weavy-controls {
+                position: absolute;
+                border-bottom: none;
+                flex-direction: row;
+
+                .weavy-icon {
+                    color: $white;
+                }
+            }
+
+            &.weavy-open {
+                pointer-events: all;
+                z-index: 5;
+            }
+
+            .weavy-panel-frame {
+                background-color: transparent;
+            }
+
+            &.weavy-panel-light {
+                background-color: rgba(mix($white, #FFF), $opacity-panel);
+
+                .weavy-icon {
+                    color: $icon-color;
+                }
+
+                @include media-breakpoint-up(md) {
+                    left: 1rem;
+                    top: 1rem;
+                    right: 1rem;
+                    bottom: 1rem;
+                    border-radius: .1875rem;
+                    box-shadow: $md-shadow-16dp;
+                    overflow: hidden;
+                }
+            }
+        }
+    }
+}

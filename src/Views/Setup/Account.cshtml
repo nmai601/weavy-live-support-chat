@@ -1,0 +1,16 @@
+﻿@model SetupAccountModel
+@{
+    Title = "User account";
+    Layout = "~/Views/Setup/_Layout.cshtml";
+}
+
+<h1 class="display-3">@Title</h1>
+<p>@T["Create a user account for yourself. You will become administrator for this installation."]</p>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { autocomplete = "off", novalidate = "" })) {
+    @Html.EditorsForModel(labels: false)
+<div class="form-buttons">
+    @(Html.ActionLink<SetupController>(c => c.License(), text: T["Back"], htmlAttributes: new { @class = "btn btn-outline-secondary" }))
+    <button type="submit" class="btn btn-primary btn-load">@T["Next"]</button>
+</div>
+}

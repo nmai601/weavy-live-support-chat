@@ -1,0 +1,20 @@
+﻿@model Comment
+
+@if (Model.HasPermission(Permission.Edit) || Model.HasPermission(Permission.Delete)) {
+    <div class="dropdown d-inline-block">
+        <button type="button" class="btn btn-icon dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="@T["Toggle Dropdown"]">
+            @Svg.Icon("dots-vertical")
+        </button>
+        <div class="dropdown-menu dropdown-menu-right">
+            @Html.StarToggle(Model, false, htmlAttributes: new { @class = "dropdown-item toggle-dropdown" })
+            
+            @if (Model.HasPermission(Permission.Edit)) {
+                <button class="dropdown-item" type="button" data-toggle="modal" data-target="#edit-comment-modal" data-path="@(Url.Action<CommentController>(c => c.Edit(Model.Id)))" title="@T["Edit comment"]">@Svg.Icon("pencil", "success") @T["Edit"]</button>
+            }
+            
+            @if (Model.HasPermission(Permission.Delete)) {
+                <a href="#" data-comment-trash="@Model.Id" class="dropdown-item">@Svg.Icon("delete", "danger") @T["Trash"]</a>
+            }
+        </div>
+    </div>
+}

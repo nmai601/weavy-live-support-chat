@@ -1,0 +1,50 @@
+﻿@model TestEmail
+@{ 
+    Layout = "_Layout.cshtml";
+    ViewBag.Title = T["Test message from {0}", Model.Theme.Name]; 
+}
+@* STANDARD MODULE // *@
+<tr>
+    <td align="center" valign="top">
+        @* CENTERING TABLE // *@
+        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+            <tr>
+                <td align="center" valign="top">
+                    @* FLEXIBLE CONTAINER // *@
+                    <table border="0" cellpadding="0" cellspacing="0" width="600" class="flexibleContainer">
+                        <tr>
+                            <td align="center" valign="top" width="600" class="flexibleContainerCell">
+                                @* CONTENT TABLE // *@
+                                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                    <tr>
+                                        <td valign="top" class="textContent">
+                                            @Html.Raw(Model.Body)
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td valign="top" class="textContent">
+                                            @T["Language"]: @CultureInfo.CurrentUICulture<br />
+                                            @T["Format"]: @CultureInfo.CurrentCulture<br />
+                                            @T["First day of week"]: @CultureInfo.CurrentCulture.DateTimeFormat.DayNames[(int)CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek]<br />
+                                            @T["Decimal symbol"]: @CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator<br />
+                                            @T["Time zone"]: @WeavyContext.Current.TimeZone.DisplayName<br />
+                                            @T["Date"]: @Model.Date.ToString("s")<br />                                            
+                                            @T["Short date"]: @Model.Date.ToLocal().ToShortDateString()<br />
+                                            @T["Long date"]: @Model.Date.ToLocal().ToLongDateString()<br />
+                                            @T["Short time"]: @Model.Date.ToLocal().ToShortTimeString()<br />
+                                            @T["Long time"]: @Model.Date.ToLocal().ToLongTimeString()<br />
+                                        </td>
+                                    </tr>
+                                </table>
+                                @* // CONTENT TABLE *@
+                            </td>
+                        </tr>
+                    </table>
+                    @* // FLEXIBLE CONTAINER *@
+                </td>
+            </tr>
+        </table>
+        @* // CENTERING TABLE *@
+    </td>
+</tr>
+@* // STANDARD MODULE *@

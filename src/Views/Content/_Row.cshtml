@@ -1,0 +1,25 @@
+﻿@model Content
+@{
+    var meta = Model.MetaData();
+    var attrs = Html.PreviewAttributes(Model as IFile);
+    var href = attrs?["data-href"] ?? Model.Url();
+    var target = attrs?["target"] ?? (Model is IFolder ? null : "overlay");
+    var prev = ViewData["prev"] as int?;
+    var next = ViewData["next"] as int?;
+}
+<tr data-id="@Model.Id" @Html.Raw(prev != null ? ("data-prev=" + prev) : null) @Html.Raw(next != null ? ("data-next=" + next) : null) data-href="@href" data-target="@target" data-content-guid="@Model.ContentGuid" data-allowed-children="@meta.AllowedChildren()" data-kind="@Model.Kind()" @(Model.HasPermission(Permission.Edit) ? "draggable=true" : "")>
+    <td class="table-icon">@Svg.Icon(Model)</td>
+    <td>
+        <a href="@href" target="@target" data-kind="@Model.Kind()" title="@Model.Name" draggable="false">
+            @Model.Name
+        </a>
+        @Html.Badge(Model)
+        @if (Model is IStarrable starrable) {
+            @Html.StarToggle(starrable)
+        }
+    </td>
+    <td>@Html.Time(Model.ModifiedAt, format: "g")</td>
+    <td>@Model.Kind()</td>
+    <td>@if (Model is IFile file) {@FileUtils.FileSizeAsString(file.Blob.Size)}</td>
+    <td class="table-icon">@{ Html.RenderPartial("_ContentMenu", Model);}</td>
+</tr>

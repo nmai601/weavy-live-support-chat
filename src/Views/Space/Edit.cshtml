@@ -1,0 +1,28 @@
+﻿@model Space
+@{
+    Title = T["Edit space"].ToString();
+    Back = Model.Url();
+}
+
+@section navbar_middle {
+    @Html.Partial("_NavbarMenu")
+}
+
+
+<div class="container my-3">
+    @using (Html.BeginForm(nameof(SpaceController.Update), typeof(SpaceController).ControllerName(), new { id = Model.Id }, FormMethod.Post, new { autocomplete = "off", data_turboform = "", novalidate = "" })) {
+        @Html.HttpMethodOverride(HttpVerbs.Put)
+
+        <div class="text-center">
+            @Html.EditorFor(x => Model.Avatar)
+        </div>
+
+        @Html.EditorsForModel(exclude: new string[] { nameof(Model.Avatar)})
+
+        <div class="form-buttons">
+            <button type="submit" name="button" value="@(nameof(SpaceController.Update))" class="btn btn-primary btn-load" title="@T["Save"]">@T["Save"]</button>
+            <a href="@Back" class="btn btn-outline-secondary mr-auto">@T["Cancel"]</a>
+        </div>
+
+    }
+</div>

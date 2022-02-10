@@ -1,0 +1,23 @@
+﻿@model Weavy.Web.Models.RegisterWindowsModel
+@{
+    Layout = "~/Views/Shared/_LayoutBasic.cshtml";
+    Title = T["Associate account"].ToString();
+}
+<div class="container mt-5">
+    <div class="row justify-content-sm-center">
+        <div class="col-sm-6">
+            <div class="text-center mb-3">
+                @Html.IconImg(48)
+            </div>
+            <h1 class="display-3">@T["Do you have an account?"]</h1>
+            <p>@T["Hi, we can't find an account for <strong>{0}</strong>. Have you used {1} before?", Model.SamAccountName, Theme.Name]</p>
+
+            @using (Html.BeginForm(nameof(AccountController.RegisterWindows), typeof(AccountController).ControllerName(), FormMethod.Post, new { data_turboform = true, novalidate = "" })) {
+                <div class="form-buttons">
+                    <a href="@(Url.Action<AccountController>(x => x.AddWindows(null)))" class="btn btn-primary btn-load">@T["Yes, I have an account"]</a>
+                    <button type="submit" class="btn btn-secondary btn-load">@T["No, I am a new user"]</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

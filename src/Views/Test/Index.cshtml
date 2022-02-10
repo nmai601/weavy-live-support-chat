@@ -1,0 +1,760 @@
+﻿@model TestViewModel
+@{
+    Title = "This is a test page with a really long title that should get truncated in smaller viewports";
+
+    var colors = new string[] { "theme", "light-blue", "blue", "indigo", "deep-purple", "purple", "pink", "red", "deep-orange", "orange", "amber", "lime", "yellow", "light-green", "green", "teal", "cyan", "gray" };
+    var shades = new int[] { 50, 100, 200, 300, 400, 500, 600, 700, 800, 900 };
+    var theme = new Dictionary<string, string> { { "theme-500", "primary" }, { "teal-500", "success" }, { "light-blue-500", "info" }, { "amber-500", "warning" }, { "red-500", "danger" }, { "gray-400", "secondary" } };
+    var now = DateTime.UtcNow;
+}
+
+@section styles {
+    <style>
+        .body-dark .d-light {
+            display: none;
+        }
+
+        body:not(.body-dark) .d-dark {
+            display: none;
+        }
+    </style>
+}
+
+@section navbar_secondary {
+    <nav class="navbar navbar-theme">
+        <div class="nav nav-tabs">
+            <a class="nav-link active pr-4" href="@(Url.Action<TestController>(c => c.Get("LoremIpsum")))">Lorem ipsum</a>
+            <div class="dropdown align-self-center ml--4">
+                <button type="button" class="btn btn-sm btn-icon dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Toggle Dropdown">@Svg.Icon("menu-down")</button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="@(Url.Action<TestController>(c => c.GetRedirect(null)))">Redirect via GET</a>
+                    <form action="@(Url.Action<TestController>(c => c.PostRedirect()))" method="post" data-turboform>
+                        <button class="dropdown-item" type="submit">Redirect via POST</button>
+                    </form>
+                    <a class="dropdown-item" href="@(Url.Action<TestController>(c => c.GetRedirect("comments")))">Redirect to #comments</a>
+                    <a class="dropdown-item" href="@(Url.Action<TestController>(c => c.GetRedirect(null)))#comments" data-turbolinks="false">Redirect to #comments (no turbolinks)</a>
+                </div>
+            </div>
+
+            <a class="nav-link pr-4" href="@(Url.Action<TestController>(c => c.Email()))" data-turbolinks="false">Email</a>
+            <div class="dropdown align-self-center ml--4">
+                <button type="button" class="btn btn-sm btn-icon dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Toggle Dropdown">@Svg.Icon("menu-down")</button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="@(Url.Action<TestController>(c => c.Email()))" data-turbolinks="false">@Svg.Icon("email") Example</a>
+                    <a class="dropdown-item" href="@(Url.Action<TestController>(c => c.ConversationEmail(null)))" data-turbolinks="false">@Svg.Icon("email") Conversation</a>
+                    <a class="dropdown-item" href="@(Url.Action<TestController>(c => c.DailyDigestEmail(null)))" data-turbolinks="false">@Svg.Icon("email") Daily digest</a>
+                    <a class="dropdown-item" href="@(Url.Action<TestController>(c => c.NotificationEmail()))" data-turbolinks="false">@Svg.Icon("email") Notification</a>
+                    <a class="dropdown-item" href="@(Url.Action<TestController>(c => c.PasswordResetEmail()))" data-turbolinks="false">@Svg.Icon("email") Password reset</a>
+                    <a class="dropdown-item" href="@(Url.Action<TestController>(c => c.TestEmail()))" data-turbolinks="false">@Svg.Icon("email") Test</a>
+                    <a class="dropdown-item" href="@(Url.Action<TestController>(c => c.WelcomeEmail()))" data-turbolinks="false">@Svg.Icon("email") Welcome</a>
+                </div>
+            </div>
+            <button type="button" class="nav-link nav-icon" title="Nav link with icon and badge">@Svg.Icon("bell") <span class="badge badge-danger">4</span></button>
+        </div>
+
+        <div class="navbar-icons">
+            <div class="dropdown">
+                <button type="button" class="btn btn-icon dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Toggle Dropdown">
+                    @Svg.Icon("dots-vertical")
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item" href="javascript:;">@Svg.Icon("textbox") Rename tab</a>
+                    <a class="dropdown-item" href="javascript:;">@Svg.Icon("delete") Remove tab</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="javascript:;">@Svg.Icon("plus") Add tab</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+}
+
+@section navbar_tertiary {
+    <nav class="navbar navbar-light">
+
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item" title="Files"><a href="#">@Svg.Icon("folder", "amber")<span>Files</span></a>@Svg.Icon("chevron-right")</li>
+            <li class="breadcrumb-item" title="Long Folder Name That Should Get Truncated"><a href="#">@Svg.Icon("folder", "amber")<span>Long Folder Name That Should Get Truncated</span></a>@Svg.Icon("chevron-right")</li>
+            <li class="breadcrumb-item active" title="@Title">@Title</li>
+        </ol>
+
+        <div class="navbar-icons ml-auto">
+            <button class="btn btn-icon d-dark" data-body-bg="light">@Svg.Icon("lightbulb-outline")</button>
+            <button class="btn btn-icon d-light" data-body-bg="dark">@Svg.Icon("lightbulb")</button>
+            <div class="dropdown">
+                <button type="button" class="btn btn-icon dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Toggle Dropdown">
+                    @Svg.Icon("dots-vertical")
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item" href="#icons">Icons</a>
+                    <a class="dropdown-item" href="#colors">Colors</a>
+                    <a class="dropdown-item" href="#forms">Forms</a>
+                    <a class="dropdown-item" href="#tables">Tables</a>
+                    <a class="dropdown-item" href="#text">Text</a>
+                    <a class="dropdown-item" href="#formatting">Formatting</a>
+                    <a class="dropdown-item" href="#alerts">Alerts</a>
+                    <a class="dropdown-item" href="#buttons">Buttons</a>
+                    <a class="dropdown-item" href="#spinners">Spinners</a>
+                    <a class="dropdown-item" href="#pagination">Pagination</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+}
+
+
+<div class="container">
+
+
+    <section id="icons">
+        <h1 class="display-3 mt-4">Icons</h1>
+        @Svg.Icons()
+        <div class="d-flex">
+            <div class="ml-auto">
+                @Svg.Icon("weavy", "native", 96, htmlAttributes: new { data_toggle = "tooltip", title = "color: native, size: 96" })
+                @Svg.Icon("weavy", "icon", 48, htmlAttributes: new { data_toggle = "tooltip", title = "color: icon, size: 48" })
+                @Svg.Icon("weavy", "danger", 36, htmlAttributes: new { data_toggle = "tooltip", title = "color: danger, size: 32" })
+                @Svg.Icon("weavy", "warning", 24, htmlAttributes: new { data_toggle = "tooltip", title = "color: warning" })
+                @Svg.Icon("weavy", "info", size: 18, htmlAttributes: new { data_toggle = "tooltip", title = "color: info, size: 18" })
+            </div>
+            <div class="mr-auto">
+                @Svg.Icon("weavy+onedrive", "success", size: 18, htmlAttributes: new { data_toggle = "tooltip", title = "color: success, size: 18, overlay: onedrive" })
+                @Svg.Icon("weavy+onedrive", "primary", htmlAttributes: new { data_toggle = "tooltip", title = "color: primary, overlay: onedrive" })
+                @Svg.Icon("weavy+onedrive", "secondary", 36, htmlAttributes: new { data_toggle = "tooltip", title = "color: secondary, size: 32, overlay: onedrive" })
+                @Svg.Icon("weavy+onedrive", "yellow", 48, htmlAttributes: new { data_toggle = "tooltip", title = "color: yellow, size: 48, overlay: onedrive" })
+                @Svg.Icon("weavy+onedrive", "pink-600", 96, htmlAttributes: new { data_toggle = "tooltip", title = "color: pink-600, size: 96, overlay: onedrive" })
+            </div>
+        </div>
+    </section>
+
+    <section id="emoji">
+        <h1 class="display-3 mt-4">Emoji</h1>
+        <p>@Html.Raw(Emojione.ToImage("Testing some &lt;img&gt; emoji :smiley:😍")) and some &lt;svg&gt; emoji @Svg.Emoji(":poop:")@Svg.Emoji(";)").</p>
+    </section>
+
+    <section id="formatting">
+        <h1 class="display-3 mt-4">Localization</h1>
+        <div class="row">
+            <div class="col">
+                @T["Language"]: @CultureInfo.CurrentUICulture<br />
+                @T["Format"]: @CultureInfo.CurrentCulture<br />
+                @T["First day of week"]: @CultureInfo.CurrentCulture.DateTimeFormat.DayNames[(int)CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek]<br />
+                @T["Decimal symbol"]: @CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator<br />
+                @T["Time zone"]: @WeavyContext.Current.TimeZone.DisplayName<br />
+                @T["Date"]: @now.ToString("s")<br />
+                @T["Short date"]: @now.ToLocal().ToShortDateString()<br />
+                @T["Long date"]: @now.ToLocal().ToLongDateString()<br />
+                @T["Short time"]: @now.ToLocal().ToShortTimeString()<br />
+                @T["Long time"]: @now.ToLocal().ToLongTimeString()<br />
+            </div>
+            <div class="col">
+                @T["Lorem ipsum."]<br />
+                <br/>
+                @{ Html.RenderPartial("_Localization"); }
+            </div>
+        </div>
+    </section>
+
+    <section id="colors">
+        <h1 class="display-3 mt-4">Colors</h1>
+        <hr />
+        <div class="row ">
+            @foreach (var color in colors) {
+                <div class="col-6 col-sm-4 col-lg-2 mb-4">
+                    <div class="p-2 swatch-@color">@color.Replace("-", " ").ToTitleCase()</div>
+                    <div class="p-2 text-@color">Abc @Svg.Icon("palette")</div>
+                    @foreach (var shade in shades) {
+                        var name = theme.ContainsKey(color + "-" + shade) ? " = " + theme[color + "-" + shade].ToTitleCase() : null;
+                        <div class="p-2 swatch-@color-@shade">@shade @name</div>
+                    }
+                </div>
+            }
+        </div>
+    </section>
+
+    <section id="forms">
+        <h1 class="display-3 mt-4">Forms</h1>
+        <hr />
+        <form action="@(Url.Action<TestController>(c => c.Post(null)))" method="post" novalidate data-turboform>
+            <div class="row">
+                <div class="col">
+                    @Html.EditorFor(x => Model.Name)
+                </div>
+                <div class="col">
+                    @Html.EditorFor(x => Model.Email)
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    @Html.EditorFor(x => Model.Username)
+                </div>
+                <div class="col">
+                    @Html.EditorFor(x => Model.Password)
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    @Html.EditorFor(x => Model.Date)
+                </div>
+                <div class="col">
+                    @Html.EditorFor(x => Model.DateTime)
+                </div>
+                <div class="col">
+                    @Html.EditorFor(x => Model.Time)
+                </div>
+                <div class="col">
+                    @Html.EditorFor(x => Model.Schedule)
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    @Html.EditorFor(x => Model.Decimal)
+                </div>
+                <div class="col">
+                    @Html.EditorFor(x => Model.Double)
+                </div>
+                <div class="col">
+                    @Html.EditorFor(x => Model.Integer)
+                </div>
+                <div class="col">
+                    @Html.EditorFor(x => Model.Long)
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    <label class="text-muted">Custom label</label>
+                    @Html.EditorFor(x => Model.AlertStatus, additionalViewData: new { __label = false })
+                </div>
+                <div class="col-sm-3">
+                    @Html.EditorFor(x => Model.ContentType)
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        @Html.EditorFor(x => Model.Bool, additionalViewData: new { __html = false })
+                        @Html.EditorFor(x => Model.RequiredBool, additionalViewData: new { __html = false })
+                    </div>
+                </div>
+            </div>
+
+            @Html.EditorFor(x => Model.Text)
+            @Html.EditorFor(x => Model.Webpage)
+            @Html.EditorFor(x => Model.Tags)
+            <div class="row">
+                <div class="col">
+                    @Html.EditorFor(x => Model.Thumb)
+                </div>
+                <div class="col">
+                    @Html.EditorFor(x => Model.Avatar)
+                </div>
+                <div class="col">
+                    @Html.EditorFor(x => Model.File)
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col">
+                    @Html.EditorFor(x => Model.Select)
+                </div>
+                <div class="col">
+                    @Html.EditorFor(x => Model.RadioTest)
+                </div>
+                <div class="col">
+                    @Html.EditorFor(x => Model.SelectMany)
+                </div>
+            </div>
+
+            <div class="form-buttons">
+                @Html.EditorFor(x => Model.Hidden)
+                <button class="btn btn-primary btn-load" type="submit">Submit</button>
+                <button class="btn btn-outline-secondary" type="button">Cancel</button>
+            </div>
+        </form>
+    </section>
+
+    <section id="tables">
+        <h1 class="display-3 mt-4">Tables</h1>
+        <hr />
+        <table class="table table-hover table-name-desc">
+            <thead>
+                <tr>
+                    <th class="table-icon"></th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th class="table-icon"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr data-href="@User.Url()">
+                    <td class="table-icon">@User.AvatarImg(32, presence: true)</td>
+                    <td>
+                        @if (User.Username == User.GetTitle()) {
+                            <a href="@User.Url()"><small class="text-muted">@@@User.Username</small></a>
+                        } else {
+                            <a href="@User.Url()">@User.GetTitle()</a> <small class="text-muted">@@@User.Username</small>
+                        }
+                        @Html.Badge(User)
+                        @Html.Shield(User)
+                    </td>
+                    <td>@User.Email</td>
+                    <td class="table-icon">
+                        <div class="dropdown">
+                            <button type="button" class="btn btn-icon dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Toggle Dropdown">
+                                @Svg.Icon("dots-vertical")
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a class="dropdown-item" href="#">@Svg.Icon("pencil") Link action</a>
+                                <button type="button" class="dropdown-item">@Svg.Icon("file-document-box") Button action</button>
+                                <div class="dropdown-divider"></div>
+                                <form>
+                                    <button type="submit" class="dropdown-item">@Svg.Icon("delete", "danger") Form action</button>
+                                </form>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr data-href="javascript:;">
+                    <td class="table-icon">@(new User().AvatarImg(32))</td>
+                    <td><a href="#">UserWithLongName AndEvenLongerLastName @@longname</a></td>
+                    <td>firstname.lastname@domain.test</td>
+                    <td class="table-icon"><button type="button" class="btn btn-icon">@Svg.Icon("dots-vertical")</button></td>
+                </tr>
+                <tr c data-href="javascript:;">
+                    <td class="table-icon">@(new Space().AvatarImg(32))</td>
+                    <td><a href="#">Space</a></td>
+                    <td>Space description</td>
+                    <td class="table-icon"><button type="button" class="btn btn-icon">@Svg.Icon("dots-vertical")</button></td>
+                </tr>
+
+                <tr data-href="javascript:;">
+                    <td class="table-icon">@Svg.Icon("folder", "amber")</td>
+                    <td><a href="javascript:;">Folder</a></td>
+                    <td></td>
+                    <td class="table-icon"><button type="button" class="btn btn-icon">@Svg.Icon("dots-vertical")</button></td>
+                </tr>
+
+                <tr data-href="javascript:;">
+                    <td class="table-icon">@Svg.Icon("file-document-box", "primary")</td>
+                    <td><a href="javascript:;">Note</a> <button class="btn btn-icon">@Svg.Icon("star", "yellow")</button></td>
+                    <td>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sit amet arcu non mauris facilisis sollicitudin.</td>
+                    <td class="table-icon"><button type="button" class="btn btn-icon">@Svg.Icon("dots-vertical")</button></td>
+                </tr>
+
+
+                <tr class="table-primary" data-href="javascript:;">
+                    <td class="table-icon">@Svg.Icon("file", "primary")</td>
+                    <td><a href="javascript:;">Primary</a> <span class="badge badge-primary">badge</span></td>
+                    <td>Primary description</td>
+                    <td class="table-icon"><button type="button" class="btn btn-icon">@Svg.Icon("dots-vertical")</button></td>
+                </tr>
+
+                <tr class="table-secondary" data-href="javascript:;">
+                    <td class="table-icon">@Svg.Icon("file", "secondary")</td>
+                    <td><a href="javascript:;">Secondary</a></td>
+                    <td>Secondary description</td>
+                    <td class="table-icon"><button type="button" class="btn btn-icon">@Svg.Icon("close")</button></td>
+                </tr>
+
+                <tr class="table-success" data-href="javascript:;">
+                    <td class="table-icon">@Svg.Icon("file", "success")</td>
+                    <td><a href="javascript:;">Success</a></td>
+                    <td>Success description</td>
+                    <td class="table-icon"><button type="button" class="btn btn-icon">@Svg.Icon("check", "success")</button></td>
+                </tr>
+
+                <tr class="table-danger" data-href="javascript:;">
+                    <td class="table-icon">@Svg.Icon("file", "danger")</td>
+                    <td><a href="javascript:;">Danger</a></td>
+                    <td>Danger description</td>
+                    <td class="table-icon"><button type="button" class="btn btn-icon">@Svg.Icon("delete", "danger")</button></td>
+                </tr>
+
+                <tr class="table-warning" data-href="javascript:;">
+                    <td class="table-icon">@Svg.Icon("file", "warning")</td>
+                    <td><a href="javascript:;">Warning</a></td>
+                    <td>Warning description</td>
+                    <td class="table-icon"><button type="button" class="btn btn-icon">@Svg.Icon("alert", "warning")</button></td>
+                </tr>
+
+                <tr class="table-info" data-href="javascript:;">
+                    <td class="table-icon">@Svg.Icon("file", "info")</td>
+                    <td><a href="javascript:;">Info</a></td>
+                    <td>Info description</td>
+                    <td class="table-icon"><button type="button" class="btn btn-icon">@Svg.Icon("information", "info")</button></td>
+                </tr>
+
+                <tr class="table-trashed" data-href="javascript:;">
+                    <td class="table-icon">@Svg.Icon("file")</td>
+                    <td><a href="javascript:;">Trashed</a></td>
+                    <td>Trashed description</td>
+                    <td class="table-icon"></td>
+                </tr>
+
+                <tr class="table-muted" data-href="javascript:;">
+                    <td class="table-icon">@Svg.Icon("file")</td>
+                    <td><a href="javascript:;">Muted</a></td>
+                    <td>Muted description</td>
+                    <td class="table-icon"></td>
+                </tr>
+
+            </tbody>
+        </table>
+    </section>
+
+    <section id="text">
+        <h1 class="display-3 mt-4">Text</h1>
+        <hr />
+        <div class="row">
+            <div class="col">
+                <h1 class="display-1">Display 1</h1>
+                <h1 class="display-2">Display 2</h1>
+                <h1 class="display-3">Display 3</h1>
+                <h1 class="display-4">Display 4</h1>
+                <br /><br />
+                <h1>Heading <small class="text-muted">.h1</small></h1>
+                <h2>Heading <small class="text-muted">.h2</small></h2>
+                <h3>Heading <small class="text-muted">.h3</small></h3>
+                <h4>Heading <small class="text-muted">.h4</small></h4>
+                <h5>Heading <small class="text-muted">.h5</small></h5>
+                <h6>Heading <small class="text-muted">.h6</small></h6>
+            </div>
+
+            <div class="col">
+                <p style="font-weight: 900;">font-weight: 900</p>
+                <p style="font-weight: 800;">font-weight: 800</p>
+                <p style="font-weight: 700;">font-weight: 700</p>
+                <p style="font-weight: 600;">font-weight: 600</p>
+                <p style="font-weight: 500;">font-weight: 500</p>
+                <p style="font-weight: 400;">font-weight: 400</p>
+                <p style="font-weight: 300;">font-weight: 300</p>
+                <p style="font-weight: 200;">font-weight: 200</p>
+                <p style="font-weight: 100;">font-weight: 100</p>
+                <p class="font-weight-bold">.font-weight-bold</p>
+                <p class="font-weight-strong">.font-weight-strong</p>
+                <p class="font-weight-normal">.font-weight-normal</p>
+            </div>
+
+            <div class="col">
+                <p><a href="#" class="text-primary">Primary link</a></p>
+                <p><a href="#" class="text-secondary">Secondary link</a></p>
+                <p><a href="#" class="text-success">Success link</a></p>
+                <p><a href="#" class="text-danger">Danger link</a></p>
+                <p><a href="#" class="text-warning">Warning link</a></p>
+                <p><a href="#" class="text-info">Info link</a></p>
+                <p><a href="#" class="text-light bg-gray">Light link</a></p>
+                <p><a href="#" class="text-dark">Dark link</a></p>
+            </div>
+
+            <div class="col">
+                <p class="text-primary">.text-primary</p>
+                <p class="text-secondary">.text-secondary</p>
+                <p class="text-success">.text-success</p>
+                <p class="text-danger">.text-danger</p>
+                <p class="text-warning">.text-warning</p>
+                <p class="text-info">.text-info</p>
+                <p class="text-light">.text-light</p>
+                <p class="text-dark">.text-dark</p>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col">
+                <p>You can use the <code>&lt;mark&gt;</code> tag to <mark>highlight</mark> text.</p>
+                <p><s>This line of text is meant to be treated as no longer accurate.</s></p>
+                <p><u>This line of text will render as underlined.</u></p>
+                <p class="text-muted">This line of text text is muted.</p>
+            </div>
+            <div class="col">
+                <p><strong>This line rendered as bold text.</strong></p>
+                <p class="font-weight-strong">This line rendered as strong text.</p>
+                <p><em>This line rendered as italicized text.</em></p>
+                <p><small>This line of text is meant to be treated as fine print.</small></p>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col">
+                <p>A normal paragraph of text <a href="#">with a link</a>, an icon @Svg.Icon("weavy", "native") and an emoji @Svg.Emoji(":smiley:"). Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nullam id dolor id nibh ultricies vehicula.</p>
+                <p class="lead">
+                    Make a paragraph stand out by adding .lead. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Duis mollis, est non commodo luctus.
+                </p>
+                <blockquote class="blockquote">
+                    <p class="mb-0">For quoting blocks of content from another source within your document use blockquote.</p>
+                    <footer class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></footer>
+                </blockquote>
+                <pre><code class="language-csharp">public static void Main(string[] args) {
+    Console.WriteLine("Hello world");
+}</code></pre>
+            </div>
+        </div>
+
+    </section>
+
+    <section id="alerts">
+        <h1 class="display-3 mt-4">Alerts</h1>
+        <hr />
+        <div class="alert alert-success fade show" role="alert">
+            This is a success alert with an undo link. <a href="#" class="alert-link">Undo</a>.
+        </div>
+        <div class="alert alert-danger fade show d-flex" role="alert">
+            This is a danger alert with a dropdown for testing errors.
+
+            <div class="dropdown d-inline-block  ml-auto">
+                <button type="button" class="btn btn-icon dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Toggle Dropdown">
+                    @Svg.Icon("dots-vertical")
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item" href="@(Url.Action<TestController>(c => c.Throw()))">Get => Error</a>
+                    <form action="@(Url.Action<TestController>(c => c.Throw()))" method="post" data-turboform>
+                        <button type="submit" class="dropdown-item">Post => Error</button>
+                    </form>
+                    <a class="dropdown-item" href="test.html">404</a>
+                </div>
+            </div>
+        </div>
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <button type="button" class="btn btn-icon close" data-dismiss="alert" aria-label="Close">
+                @Svg.Icon("close")
+            </button>
+            This is a warning alert with an undo form. <form class="d-inline" action="" method="get"><button type="submit" class="btn btn-link alert-link">Undo</button>.</form>
+        </div>
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <button type="button" class="btn btn-icon close" data-dismiss="alert" aria-label="Close">
+                @Svg.Icon("close")
+            </button>
+            This is a dismissible info alert.
+        </div>
+        <a class="alert alert-info fade show d-flex" role="alert" href="#">
+            @Svg.Icon("information-outline", size: 36, htmlAttributes: new { @class = "align-self-start flex-noscale mr-2 d-none d-sm-block" })
+            <span>Alls of this alert is <span class="alert-link">a link</span>.</span>
+            <span class="btn btn-outline-info ml-auto d-none d-sm-inline-flex">Button</span>
+        </a>
+    </section>
+
+    <section id="buttons">
+        <h1 class="display-3 mt-4">Buttons</h1>
+        <hr />
+        <div class="form-group">
+            <button type="button" class="btn btn-primary">Primary</button>
+            <button type="button" class="btn btn-secondary">Secondary</button>
+            <button type="button" class="btn btn-success" data-alert="success">Success</button>
+            <button type="button" class="btn btn-info" data-alert="info">Info</button>
+            <button type="button" class="btn btn-warning" data-alert="warning">Warning</button>
+            <button type="button" class="btn btn-danger" data-alert="danger">Danger</button>
+            <button type="button" class="btn btn-light" data-body-bg="light">Light</button>
+            <button type="button" class="btn btn-dark" data-body-bg="dark">Dark</button>
+            <button type="button" class="btn btn-link">Link</button>
+        </div>
+        <div class="form-group">
+            <a href="javascript:;" class="btn btn-primary">Primary</a>
+            <a href="javascript:;" class="btn btn-secondary">Secondary</a>
+            <a href="javascript:;" class="btn btn-success" data-alert="success">Success</a>
+            <a href="javascript:;" class="btn btn-info" data-alert="info">Info</a>
+            <a href="javascript:;" class="btn btn-warning" data-alert="warning">Warning</a>
+            <a href="javascript:;" class="btn btn-danger" data-alert="danger">Danger</a>
+            <a href="javascript:;" class="btn btn-light" data-body-bg="light">Light</a>
+            <a href="javascript:;" class="btn btn-dark" data-body-bg="dark">Dark</a>
+            <a href="@User.Url()" class="btn btn-link">Link</a>
+        </div>
+        <div class="form-group">
+            <button type="button" class="btn btn-outline-primary">Primary</button>
+            <button type="button" class="btn btn-outline-secondary">Secondary</button>
+            <button type="button" class="btn btn-outline-success" data-alert="success">Success</button>
+            <button type="button" class="btn btn-outline-info" data-alert="info">Info</button>
+            <button type="button" class="btn btn-outline-warning" data-alert="warning">Warning</button>
+            <button type="button" class="btn btn-outline-danger" data-alert="danger">Danger</button>
+            <button type="button" class="btn btn-outline-light" data-body-bg="light">Light</button>
+            <button type="button" class="btn btn-outline-dark" data-body-bg="dark">Dark</button>
+        </div>
+        <div class="form-group">
+            <a href="javascript:;" class="btn btn-outline-primary">Primary</a>
+            <a href="javascript:;" class="btn btn-outline-secondary">Secondary</a>
+            <a href="javascript:;" class="btn btn-outline-success" data-alert="success">Success</a>
+            <a href="javascript:;" class="btn btn-outline-info" data-alert="info">Info</a>
+            <a href="javascript:;" class="btn btn-outline-warning" data-alert="warning">Warning</a>
+            <a href="javascript:;" class="btn btn-outline-danger" data-alert="danger">Danger</a>
+            <a href="javascript:;" class="btn btn-outline-light" data-body-bg="light">Light</a>
+            <a href="javascript:;" class="btn btn-outline-dark" data-body-bg="dark">Dark</a>
+        </div>
+        <div class="form-group">
+            <button type="button" class="btn btn-sm btn-primary btn-load">Load button</button>
+            <div class="btn-group dropdown">
+                <button type="button" class="btn btn-sm btn-primary">Split button</button>
+                <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Toggle Dropdown">
+                    @Svg.Icon("menu-down")
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <form>
+                        <button type="submit" class="dropdown-item">Form action</button>
+                    </form>
+                    <a class="dropdown-item" href="#">Link action</a>
+                    <a class="dropdown-item" href="#">Something else here</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#">Separated link</a>
+                </div>
+            </div>
+            <button type="button" class="btn btn-sm btn-success">@Svg.Icon("message-plus") Icon button</button>
+            <button type="button" class="btn btn-sm btn-success">@Svg.Icon("azure") <span>Span button</span></button>
+            <button type="button" class="btn btn-sm btn-info">@Svg.Emoji(":smiley:") Emoji button</button>
+            <button type="button" class="btn btn-sm btn-success btn-square">@Svg.Icon("content-copy")</button>
+            <button type="button" class="btn btn-sm btn-info btn-square">@Svg.Emoji(":thumbsup:")</button>
+        </div>
+        <div class="form-group">
+            <button type="button" class="btn btn-primary btn-load">Load button</button>
+            <div class="btn-group dropdown">
+                <button type="button" class="btn btn-primary">Split button</button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Toggle Dropdown">
+                    @Svg.Icon("menu-down")
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <form>
+                        <button type="submit" class="dropdown-item">Form action</button>
+                    </form>
+                    <a class="dropdown-item" href="#">Link action</a>
+                    <a class="dropdown-item" href="#">Something else here</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#">Separated link</a>
+                </div>
+            </div>
+            <button type="button" class="btn btn-success">@Svg.Icon("message-plus") Icon button</button>
+            <button type="button" class="btn btn-success">@Svg.Icon("azure") <span>Span button</span></button>
+            <button type="button" class="btn btn-info">@Svg.Emoji(":smiley:") Emoji button</button>
+            <button type="button" class="btn btn-success btn-square">@Svg.Icon("content-copy")</button>
+            <button type="button" class="btn btn-info btn-square">@Svg.Emoji(":thumbsup:")</button>
+        </div>
+        <div class="form-group">
+            <button type="button" class="btn btn-lg btn-primary btn-load">Load button</button>
+            <div class="btn-group dropdown">
+                <button type="button" class="btn btn-lg btn-primary">Split button</button>
+                <button type="button" class="btn btn-lg btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Toggle Dropdown">
+                    @Svg.Icon("menu-down")
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <form>
+                        <button type="submit" class="dropdown-item">Form action</button>
+                    </form>
+                    <a class="dropdown-item" href="#">Link action</a>
+                    <a class="dropdown-item" href="#">Something else here</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#">Separated link</a>
+                </div>
+            </div>
+            <button type="button" class="btn btn-lg btn-success">@Svg.Icon("message-plus") Icon button</button>
+            <button type="button" class="btn btn-lg btn-success">@Svg.Icon("azure") <span>Span button</span></button>
+            <button type="button" class="btn btn-lg btn-info">@Svg.Emoji(":smiley:") Emoji button</button>
+            <button type="button" class="btn btn-lg btn-success btn-square">@Svg.Icon("content-copy")</button>
+            <button type="button" class="btn btn-lg btn-info btn-square">@Svg.Emoji(":thumbsup:")</button>
+        </div>
+
+        <div class="form-group">
+            <button type="button" class="btn btn-icon btn-link">@Svg.Icon("arrow-left")<span>Back</span></button>
+            <button type="button" class="btn btn-icon">@Svg.Icon("bell") <span class="badge badge-danger">3</span></button>
+            <button type="button" class="btn btn-icon">@User.AvatarImg(24) <span class="badge badge-danger">3</span></button>
+            <button type="button" class="btn btn-icon">@Svg.Icon("comment")</button>
+            <div class="dropdown d-inline-block">
+                <button type="button" class="btn btn-icon dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Toggle Dropdown">
+                    @Svg.Icon("dots-vertical")
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item" href="#">@Svg.Icon("pencil") Link action</a>
+                    <form action="#" method="get" data-turboform>
+                        <input type="hidden" name="q" value="form" />
+                        <button type="submit" class="dropdown-item">@Svg.Icon("upload") Form action</button>
+                    </form>
+
+                    <a class="dropdown-item" href="#">@Svg.Icon("pin") Button action</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#" target="_blank">@Svg.Icon("check") Separated action</a>
+                </div>
+                <button type="button" class="btn btn-sm btn-round btn-success">@Svg.Icon("plus")</button>
+                <button type="button" class="btn btn-round btn-success">@Svg.Icon("plus")</button>
+                <button type="button" class="btn btn-lg btn-round btn-success">@Svg.Icon("plus")</button>
+                <button class="btn btn-outline-primary border-transparent btn-square" type="button">@Svg.Icon("content-copy")</button>
+
+            </div>
+        </div>
+
+    </section>
+
+    <section id="spinners">
+        <h1 class="display-3 mt-4">Spinners</h1>
+        <hr />
+        <div class="d-flex align-items-center">
+            @Svg.Spinner(spin: true)
+            @Svg.Spinner(size: 32, spin: true)
+            @Svg.Spinner(size: 48, spin: true)
+            <img src="@Url.Content("~/img/spinner.svg")" class="ml-auto" width="24" height="24" alt="spinner" />
+        </div>
+    </section>
+
+    <section id="pagination">
+        <h1 class="display-3 mt-4">Pagination</h1>
+        <hr />
+        <div class="pager">
+            <ul class="pagination">
+                <li class="page-item active"><a class="page-link" href="">1</a></li>
+                <li class="page-item"><a class="page-link" href="?skip=50">2</a></li>
+                <li class="page-item"><a class="page-link" href="?skip=100">3</a></li>
+                <li class="page-item"><a class="page-link" href="?skip=150">4</a></li>
+                <li class="page-item"><a class="page-link" href="?skip=200">5</a></li>
+                <li class="page-item disabled"><a class="page-link">…</a></li>
+                <li class="page-item"><a class="page-link" href="?skip=550">12</a></li>
+            </ul>
+            <ul class="pagination ml-auto hidden-xs-down">
+                <li class="page-item active"><a class="page-link" href="?top=50">50</a></li>
+                <li class="page-item"><a class="page-link" href="?top=100">100</a></li>
+                <li class="page-item next"><a class="page-link" href="?top=500">500</a></li>
+            </ul>
+        </div>
+    </section>
+</div>
+
+@section fab {
+    <div class="fab dropup">
+        <button type="button" class="btn btn-round btn-success dropdown-toggle" data-toggle="dropdown" title="Create" aria-expanded="false" aria-haspopup="true">@Svg.Icon("plus")</button>
+        <div class="dropdown-menu dropdown-menu-right" role="menu">
+            <h6 class="dropdown-header">New</h6>
+            <a class="dropdown-item" href="#">@Svg.Icon("file-document-box", "native") Note</a>
+            <a class="dropdown-item" href="#">@Svg.Icon("file-word", "native") Word file</a>
+            <a class="dropdown-item" href="#">@Svg.Icon("file-excel", "native") Excel file</a>
+            <h6 class="dropdown-header">Add file from</h6>
+            <a class="dropdown-item" href="#">@Svg.Icon("cloud", "light-blue") Cloud</a>
+            <a class="dropdown-item" href="#">@Svg.Icon("laptop", "theme-700") Computer</a>
+        </div>
+    </div>
+}
+
+@section footer {
+    @* testing that adding inline script to a page works *@
+    <script>
+        console.info("script on test page");
+
+        $(document).on("click", "[data-body-bg]", function (e) {
+            console.log("Going " + this.dataset.bodyBg);
+            if (this.dataset.bodyBg === "light") {
+
+                $(document.body).removeClass("body-dark");
+            } else {
+                $(document.body).addClass("body-dark");
+            }
+        });
+
+        $(document).on("click", ".fab .btn-round", function (e) {
+            $(this).toggleClass("show");
+        });
+
+        $(document).on("click", ".btn[data-alert]", function (e) {
+            var type = this.dataset.alert;
+            var text = $(this).text();
+            wvy.alert.alert(type, text, 3000);
+        });
+
+        document.addEventListener("turbolinks:load", function () {
+            // init tooltips
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+
+        document.addEventListener("turbolinks:before-cache", function () {
+            // destroy tooltips
+            $('[data-toggle="tooltip"]').tooltip('dispose');
+        });
+    </script>
+}

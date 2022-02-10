@@ -1,0 +1,66 @@
+﻿@model int?
+@{
+    var meta = ViewData.ModelMetadata;
+    var error = ViewData.ErrorMessage();
+    var source = ViewData["Source"] as Content;
+    var app = source?.App() as Files;
+
+    IEnumerable<Space> spaces = null;
+    IEnumerable<App> apps = null;
+}
+
+@if (IsEmbedded) {
+    @* don't show other apps if embedded *@
+    <input type="hidden" name="AppId" value="@(WeavyContext?.App.Id)" />
+} else {
+    // get spaces where we have content permission
+    spaces = SpaceService.Search(new SpaceQuery() { Archived = false, OrderBy = "Name" }).Where(x => x.HasPermission(Permission.Content));
+
+    // get Files apps for each space above
+    apps = spaces.Select(s => AppService.GetApps<Files>(s.Id).FirstOrDefault()).Where(a => a != null);
+
+    if (ViewData.RenderSurroundingHtml()) {
+        WriteLiteral(@"<div class=""form-group"">");
+    }
+
+    if (ViewData.RenderLabel()) {
+        <label for="@ViewData.TemplateInfo.GetFullHtmlFieldId("AppId")">@T["Space"]</label>
+    }
+
+    <select class="form-control custom-select app-picker" id="@ViewData.TemplateInfo.GetFullHtmlFieldId("AppId")" name="AppId" data-content-picker="@ViewData.TemplateInfo.GetFullHtmlFieldId("")">
+        @foreach (var a in apps) {
+            <option value="@a.Id" @if (a.SpaceId == source?.SpaceId.Value) { <text> selected</text>}>@a.Space().Name</option>
+        }
+    </select>
+
+    if (ViewData.RenderSurroundingHtml()) {
+        WriteLiteral(@"</div>");
+    }
+}
+
+@if (ViewData.RenderSurroundingHtml()) {
+    WriteLiteral(@"<div class=""form-group"">");
+}
+
+@if (ViewData.RenderLabel()) {
+    @Html.LabelFor(m => m)
+}
+
+<select class="form-control custom-select content-picker" name="@ViewData.TemplateInfo.GetFullHtmlFieldName("")" id="@ViewData.TemplateInfo.GetFullHtmlFieldId("")" data-source="@(source?.Id)">
+    @if (source != null) {
+        @Html.ContentPickerOptions(app, source)
+    } else if (!spaces.IsNullOrEmpty()) {
+        @Html.ContentPickerOptions(app)
+    }
+</select>
+
+@if (error != null) {
+    <div class="invalid-feedback">@error</div>
+} else if (ViewData.RenderDescription()) {
+    <div class="form-text">@meta.Description</div>
+}
+
+@if (ViewData.RenderSurroundingHtml()) {
+    WriteLiteral(@"</div>");
+}
+

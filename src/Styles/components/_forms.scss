@@ -1,0 +1,178 @@
+/// <reference path="../_core.scss" />
+
+html.scrollbars {
+    textarea.form-control {
+        @include custom-scrollbar;
+    }
+}
+
+
+.form-text {
+    font-size: .875rem;
+    color: $text-muted;
+}
+
+.field-validation-error {
+    color: $danger;
+}
+
+// form buttons
+.form-buttons {
+    @extend .d-flex;
+    align-items: center;
+    margin: 1.5rem 0;
+
+    > .btn:not(:last-child),
+    > .btn-group:not(:last-child) {
+        margin-right: .5rem;
+    }
+}
+
+legend {
+    font-size: 1.25rem;
+}
+
+.form-group.autosize {
+    position: relative;
+
+    > input.form-control {
+        position: absolute;
+        opacity: 1;
+        z-index: 1;
+    }
+
+    > span.form-control {
+        visibility: hidden;
+        pointer-events: none;
+        overflow: hidden;
+        white-space: pre;
+    }
+
+    .form-control.hover {
+        opacity: 0;
+
+        &:hover, &:focus {
+            opacity: 1;
+
+            & + span.form-control {
+                visibility: hidden;
+            }
+        }
+
+        & + span.form-control {
+            background: none;
+            border-color: transparent;
+            box-shadow: none;
+            overflow: hidden;
+            pointer-events: none;
+            visibility: visible;
+        }
+    }
+}
+
+.form-control.hover {
+    &:not(:hover, :focus) {
+        background: none;
+        border-color: transparent;
+        box-shadow: none;
+    }
+}
+
+
+// rename content form in navbar
+.navbar-form {
+    width: 100%;
+
+    .form-group {
+        margin: 0;
+
+        &.autosize {
+            > span.form-control {
+                @include text-truncate;
+                white-space: pre;
+            }
+        }
+    }
+
+    .form-control {
+        padding: $input-padding-y;
+        min-width: 6rem;
+        text-align: center;
+
+        &.is-invalid {
+            ~ .invalid-feedback {
+                display: none;
+            }
+        }
+    }
+}
+// form for live search (used in add space members etc.)
+.search-form {
+
+    .form-group {
+        //margin: .5rem;
+        position: relative;
+    }
+
+    .form-control {
+        padding-right: 2rem;
+        box-shadow: none;
+        border-color: $border-color;
+
+        &::-ms-clear {
+            display: none;
+        }
+    }
+
+    .btn-icon {
+        color: $text-muted;
+        position: absolute;
+        top: .125rem;
+        right: .25rem;
+
+        &:active {
+            box-shadow: none;
+        }
+    }
+
+    .btn-reset {
+        display: none;
+    }
+
+    &.searching {
+        .btn-search {
+            display: none;
+        }
+
+        .btn-reset {
+            display: inline-flex;
+
+            .spinner {
+                display: inline-flex;
+                margin: 0;
+            }
+
+            .i-close {
+                display: none;
+            }
+        }
+    }
+
+    &.reset {
+        .btn-search {
+            display: none;
+        }
+
+        .btn-reset {
+            display: inline-flex;
+
+            .spinner {
+                display: none;
+            }
+
+            .i-close {
+                display: inline-flex;
+            }
+        }
+    }
+}

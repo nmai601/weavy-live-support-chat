@@ -1,0 +1,68 @@
+﻿@model PostsViewModel
+@{
+    Title = Model.App.Name;
+}
+@if (ConfigurationService.HtmlPosts || ConfigurationService.HtmlComments) {
+    @section scripts{
+        @Html.InitHtmlEditor()
+    }
+}
+<div class="container my-3">
+    @if (Model.App.HasPermission(Permission.Post)) {
+        <form class="card post post-form" action="@(Url.Action<PostController>(c => c.Insert(WeavyContext.App.Id, null)))" method="post" data-turboform data-turbolinks-action="replace">
+            <div class="weavy-editor weavy-editor-placeholder minimized">
+                <div class="emojionearea form-control" role="application">
+                    <div class="emojionearea-editor" contenteditable="false" placeholder="@T["What's on your mind?"]" tabindex="0" dir="ltr" spellcheck="true" autocomplete="on" autocorrect="on" autocapitalize="on"></div>
+                    <div class="emojionearea-picker emojionearea-picker-position-top emojionearea-filters-position-top emojionearea-search-position-top hidden" style="display: none;">
+                        <div class="emojionearea-wrapper"></div>
+                    </div>
+                </div>
+                <div class="poll-options"></div>
+                <div class="emojionearea-button-container">
+                    <button class="btn btn-icon">@Svg.Icon("attachment")</button>
+                    @if ((ConfigurationService.TeamsMeetings || ConfigurationService.ZoomMeetings) && !WeavyContext.Browser.Mobile) {
+                        <button type="button" class="btn btn-icon btn-video" title="@T["Add meeting"]">@Svg.Icon("video")</button>
+                    }
+                    <button type="button" class="btn btn-icon btn-poll" title="@T["Add poll"]">@Svg.Icon("poll-box")</button>
+                    @if (!ConfigurationService.HtmlPosts) {
+                        <div class="emojionearea-button" title="@T["Insert emoji"]"><div class="emojionearea-button-open"></div><div class="emojionearea-button-close"></div></div>
+                    }
+                    <button type="submit" class="btn-submit btn btn-icon btn-primary" title="@T["Submit"]">@Svg.Icon("send")</button>
+                </div>
+            </div>
+
+            <textarea id="@(ConfigurationService.HtmlPosts ? "html" : "text")" class="form-control" name="@(ConfigurationService.HtmlPosts ? "html" : "text")" data-editor="post" style="display: none;"></textarea>
+        </form>
+        <div class="card post fake-post">
+            <div class="card-header media">
+                @User.AvatarImg()
+                <h6 class="media-title">
+                    <span class="fake-text w-50"></span>
+                    <span class="fake-text w-25"></span>
+                </h6>
+            </div>
+            <div class="card-body">
+                <span class="fake-text"></span>
+                <span class="fake-text w-50"></span>
+                <span class="fake-text w-75"></span>
+            </div>
+        </div>
+    }
+
+    @if (WeavyContext.Space.HasPermission(Permission.List)) {
+        <div id="infinite-scroll-target" class="posts">
+            @Html.Partial("_Posts", Model.Posts)
+        </div>
+        @Html.ScrollMore(Model.Posts)
+    }
+</div>
+
+@Html.Filebrowser(true, ConfigurationService.BlobWhitelist, "posts", cssClass: "d-none", htmlAttributes: new { data_dropzone = ".weavy-editor" })
+
+@section footer {
+    @{
+        Html.RenderPartial("_FeedbackModal");
+        Html.RenderPartial("_EditPostModal");
+        Html.RenderPartial("_EditCommentModal");
+    }
+}

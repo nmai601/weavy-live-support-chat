@@ -1,0 +1,125 @@
+﻿@{
+
+    var token = ViewBag.Token as string;
+}
+
+@section scripts {
+    <script id="timeout-scripts">
+        console.log("timeout-scripts");
+
+        var token;
+        var tokenTimeout = null;
+        var setTokenTimeout = () => {
+            tokenTimeout && clearTimeout(tokenTimeout);
+            tokenTimeout = setTimeout(() => {
+                wvy.alert.danger("SSO Token has expired, reload to get a new token.")
+            }, 60 * 1000);
+        };
+    </script>
+
+    <script id="button-scripts">
+        console.log("button-scripts");
+        $(document).on("click", "#status", function () {
+            console.info("checking authentication status using AJAX");
+            $.ajax({
+                url: '/client/user',
+                method: "POST"
+            }).done(function (data) {
+                // display result
+                $("#result").text(JSON.stringify(data, null, 2));
+            }).fail(function (xhr, status, error) {
+                // display result
+                $("#result").text(status + ": " + error);
+            });
+        });
+
+        $(document).on("click", "#signout", function () {
+            console.info("signing out using ajax");
+            $.ajax({
+                url: '/client/sign-out',
+                method: "GET"
+            }).done(function (data) {
+                // display result
+                $("#result").text("signed-out");
+            }).fail(function (xhr, status, error) {
+                // display result
+                $("#result").text(error);
+            });
+        });
+
+        $(document).on("click", "#ajax", function () {
+            console.info("signing in with token using AJAX");
+            $.ajax("/client/sign-in", {
+                crossDomain: true,
+                contentType: "application/json",
+                method: "GET",
+                xhrFields: {
+                    withCredentials: true
+                },
+                // https://stackoverflow.com/questions/8163703/cross-domain-ajax-doesnt-send-x-requested-with-header
+                headers: {
+                    "Authorization": "Bearer " + token,
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            }).done(function (data) {
+                // display result
+                $("#result").text(JSON.stringify(data, null, 2));
+            }).fail(function (xhr, status, error) {
+                // display result
+                $("#result").text(status + ": " + error);
+            });
+        });
+
+        $(document).on("click", "#authentication", function () {
+            console.info("signing in with token using wvy.authentication");
+            wvy.authentication.default.setJwt(token);
+            wvy.authentication.default.signIn().then(function () {
+                
+                $("#result").text("signalR signed-in " + wvy.authentication.default.isAuthenticated());
+            });
+        });
+
+        $(document).on("click", "#turbolinks-reload", function () {
+            console.info("reloading page via Turbolinks");
+            $(document).one("turbolinks:load", () => {
+                $("#result").text(token);
+            })
+            Turbolinks.visit(window.location.toString(), { action: 'replace' });
+        });
+
+        $(() => {
+            wvy.authentication.default.on("user", (e, data) => {
+                console.log("wvy.authentication user", e, data);
+                $("#result").text(JSON.stringify(data, null, 2));
+            });
+        })
+
+        $(document).on("turbolinks:load", () => {
+            $(".alerts .alert").alert('close');
+            setTokenTimeout();
+
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+
+    </script>
+}
+
+<div class="container m-3">
+    <button type="button" class="btn btn-primary" id="status">Status check</button>
+    <button type="button" class="btn btn-primary" id="signout">Sign out</button>
+    <button type="button" class="btn btn-primary" id="ajax">Sign in with JWT Token AJAX</button>
+    <button type="button" class="btn btn-primary" id="authentication">Sign in with JWT Token wvy</button>
+    <button type="button" class="btn btn-primary" id="turbolinks-reload">Turbolinks reload</button>
+    <button class="btn btn-outline-primary border-transparent btn-square float-right" type="button" onclick="window.getSelection().selectAllChildren(document.getElementById('result')); document.execCommand('copy'); window.getSelection().removeAllRanges();" data-toggle="tooltip" data-trigger="click" data-delay="100" data-title="Script Copied">@Svg.Icon("content-copy")</button>
+    <pre class="line-numbers language-js"><code class="language-js" id="result" data-turbolinks-permanent>@token</code></pre>
+</div>
+
+@section footer {
+
+    <script id="footer-scripts">
+        console.log("footer-scripts");
+        token = "@token";
+        console.log("token", token);
+        setTokenTimeout();
+    </script>
+}

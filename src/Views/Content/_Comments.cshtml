@@ -1,0 +1,17 @@
+﻿@model Content
+@{
+    var commentable = Model as ICommentable;
+}
+
+@if (commentable != null) {
+    <div class="content-flex offset-navbar">
+        <section class="content-section content-comments scroll-y padding-navbar" id="comments">
+            <div class="list-group comments" data-container="comments">
+                @Html.Partial("~/Views/Shared/_Comments.cshtml", commentable.Comments(), new ViewDataDictionary { { "Parent", commentable } })
+            </div>
+        </section>
+        <div class="content-comment-form">
+            @Html.Partial("~/Views/Shared/_CommentForm.cshtml", commentable, new ViewDataDictionary() { { "container", ".comments" } })
+        </div>
+    </div>
+}

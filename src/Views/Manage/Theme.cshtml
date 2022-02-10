@@ -1,0 +1,20 @@
+﻿@model Theme
+@{
+    Title = T["Theme settings"].ToString();
+    Back = ViewBag.Back as string ?? Url.Back(Url.Action<ManageController>(c => c.Index()));
+}
+
+<div class="container my-3">
+    <form action="@(Url.Action<ManageController>(c => c.UpdateTheme(null)))" method="post" class="tab-content" enctype="application/x-www-form-urlencoded" autocomplete="off" data-turboform novalidate>
+        @Html.HttpMethodOverride(HttpVerbs.Put)
+        @Html.Hidden("back", Back)
+        <div class="text-center">
+            @Html.EditorFor(x => x.Logo)
+        </div>
+        @Html.EditorsForModel()
+        <div class="form-buttons">
+            <button type="submit" class="btn btn-primary btn-load">@T["Save"]</button>
+            <a href="@Back" class="btn btn-outline-secondary">@T["Cancel"]</a>
+        </div>
+    </form>
+</div>

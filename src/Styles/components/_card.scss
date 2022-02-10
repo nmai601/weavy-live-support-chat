@@ -1,0 +1,180 @@
+/// <reference path="../_core.scss" />
+.card {
+    border: none;
+
+    &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        border: $card-border-width solid $card-border-color;
+        border-radius: $card-border-radius;
+        pointer-events: none;
+    }
+
+    .table {
+        margin: 0;
+    }
+
+    > [data-toggle=star] {
+        position: absolute;
+        top: 0;
+        right: 0;
+    }
+}
+
+a.card {
+    &:hover::after {
+        border-color: rgba($link-color, .5);
+    }
+}
+
+.card-cover {
+    background-image: linear-gradient(45deg, $cover-gradient-start, $cover-gradient-end);
+    background-position: center center;
+    background-size: 200%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-around;
+    flex-direction: column;
+    padding: 1rem $card-spacer-x 1.5rem $card-spacer-x;
+    position: relative;
+    @include border-top-radius($card-border-radius);
+
+    .facepile {
+        position: absolute;
+        bottom: -.75rem;
+        justify-content: center;
+        flex-wrap: nowrap;
+
+        .avatar {
+            margin-bottom: 0;
+
+            &:last-child {
+                margin-right: 0;
+            }
+        }
+    }
+}
+
+.card-title {
+    margin: 0;
+}
+
+.card-images {
+    overflow: hidden;
+
+    .image-grid {
+        border-radius: 0;
+        background-color: $card-bg;
+
+        &:not([data-image-count="1"]):not([data-image-count="2"]) {
+            margin-right: -1px;
+        }
+
+        &::after {
+            border-left-color: transparent;
+            border-right-color: transparent;
+        }
+    }
+}
+
+// grid layout for space listing on start page
+.space-cards {
+    display: grid;
+    grid-auto-flow: dense;
+    grid-auto-rows: 10rem;
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+    grid-gap: $grid-gutter-width/2;
+}
+
+// grid layout for files app
+.content-cards {
+    display: grid;
+    grid-auto-flow: dense;
+    grid-auto-rows: 13rem;
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+    grid-gap: $grid-gutter-width/2;
+    padding: $grid-gutter-width/2;
+
+
+    .card {
+        &:hover {
+            &::after {
+                border-color: rgba($link-color, .5);
+            }
+        }
+
+        a {
+            position: relative;
+            overflow: hidden;
+            // transform badge into ribbon
+            > .badge {
+                position: absolute;
+                top: 1.5rem;
+                left: -3rem;
+                width: 10rem;
+                transform: rotate(-45deg);
+            }
+
+            &:focus {
+                outline: none;
+            }
+        }
+        // highlight drop target
+        &.drop-target {
+
+            .card-icon, .card-image, .card-footer {
+                background-color: color("amber", 100);
+            }
+
+            &::after {
+                border: $card-border-width*2 dashed $amber;
+            }
+        }
+
+        > .dropdown {
+            position: absolute;
+            bottom: .5rem;
+            right: 0;
+        }
+    }
+
+    .card-icon, .card-image {
+        background-color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 10rem;
+    }
+
+    .card-image {
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+
+        &.hz {
+            background-size: contain;
+        }
+
+        &.vt {
+            background-position: top;
+        }
+
+        &.sm {
+            background-position: center !important;
+            background-size: auto !important;
+        }
+    }
+
+    .card-footer {
+        height: 3rem;
+        padding: 0 2rem 0 .5rem;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+}

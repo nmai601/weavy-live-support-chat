@@ -1,0 +1,62 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutBasic.cshtml";
+    Title = T["Cookie Access"].ToString();
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-sm-center">
+        <div class="col-sm-6">
+            <div class="text-center mb-3">
+                @Html.IconImg(48)
+            </div>
+            <div id="info" class="d-none text-center">
+                <h1 class="display-3 text-center">@Title</h1>
+                <p>@T["Cookies are required to use collaborative features from {0}.", WeavyContext.Uri.Host]</p>
+                <div>
+                    <button id="saa" class="btn btn-primary">@T["Allow cookie access"]</button>
+                    <button id="saa_cancel" class="btn btn-secondary">@T["Cancel"]</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function enableCookie() {
+        window.location = "/cookie-access-notify";
+    }
+
+    function notify() {
+        wvy.postal.postToParent({ weavyId: true, name: "storage-access-granted", domain: window.location.origin });
+        wvy.postal.whenLeader().finally(() => window.close());            
+    }
+
+    if ('hasStorageAccess' in document) {
+        // User interaction access
+        // There is no way to determine if user interaction is really needed, so we must presume it's needed
+        $(() => {
+            $("#info").removeClass("d-none");
+
+            $("#saa").on("click", () => {
+                if ('requestStorageAccess' in document) {
+                    document.requestStorageAccess().then(
+                        function (hasAccess) {
+                            console.log("Storage access was granted.", hasAccess);
+                            enableCookie();
+                        },
+                        function (reason) {
+                            console.log("Storage access was denied.", reason);
+                            window.close();
+                        }
+                    );
+                } else {
+                    enableCookie();
+                }
+            });
+
+            $("#saa_cancel").on("click", function () { window.close(); })
+        });
+    } else {
+        enableCookie();
+    }
+</script>

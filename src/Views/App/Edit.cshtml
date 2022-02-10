@@ -1,0 +1,29 @@
+﻿@model App
+@{
+    Title = T["Edit tab"].ToString();
+    Back = ViewData.ModelState.IsValid ? Url.Back(Model.Url()) : WeavyContext.Space.Url();
+    ViewData["turboform"] = true;
+}
+
+@if (Html.HasHtmlEditor()) {
+    @section scripts{
+        @Html.InitHtmlEditor()
+    }
+}
+
+@section navbar_middle {
+    <div class="navbar-middle"><span class="navbar-text">@Title</span></div>
+}
+
+@section navbar_secondary {
+    <nav class="navbar navbar-theme">
+        <nav class="nav nav-tabs">
+            @(Html.ActionLink<AppController>(c => c.Edit(Model.Id), text: T["Settings"], htmlAttributes: new { @class = "nav-link" }, active: LinkActive.Action))
+</nav>
+    </nav>
+}
+
+<div class="container mt-3">
+    @{ Html.RenderPartial("_Edit", Model); }
+</div>
+

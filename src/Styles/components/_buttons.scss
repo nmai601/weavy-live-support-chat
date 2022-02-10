@@ -1,0 +1,182 @@
+/// <reference path="../_core.scss" />
+
+@mixin nav-link-active {
+    background-color: transparent;
+    color: $link-color;
+    border-color: $link-color;
+}
+
+.btn {
+    cursor: pointer;
+    display: inline-flex;
+    flex-shrink: 0;
+    flex-grow: 0;
+
+    .eo {
+        width: 1.5rem;
+        height: 1.5rem;
+        margin: auto 0;
+    }
+
+    > * {
+        display: inline-flex;
+    }
+
+    &:not(.btn-icon, .btn-round, .btn-square, .dropdown-toggle-split, .btn-link) {
+
+        > .i:first-child, > .eo:first-child {
+            margin-left: -.125rem;
+        }
+
+        > .i, > .eo {
+            margin-right: .375rem;
+        }
+    }
+
+    &.btn-sm {
+        > .i, > .eo {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+    }
+
+    &.btn-lg {
+        > .i, > .eo {
+            width: 2rem;
+            height: 2rem;
+        }
+    }
+}
+
+.btn-icon {
+    background-color: transparent !important;
+    border: none;
+    border-radius: 50%;
+    box-shadow: none !important;
+    color: $icon-color;
+    line-height: 1;
+    padding: .25rem;
+    align-items: center;
+    justify-content: center;
+    text-transform: none;
+    min-width: 2rem;
+    min-height: 2rem;
+    position: relative; // so that we can position .badge
+    @include hover-focus {
+        outline: none;
+        color: rgba($icon-color, .87);
+    }
+    // color variants
+    @each $color, $value in $theme-colors {
+        &.btn-#{$color} {
+            color: $value !important;
+
+            @include hover-focus {
+                color: darken($value, 10%) !important;
+            }
+        }
+    }
+
+    &.close {
+        opacity: 1;
+
+        &:hover {
+            opacity: $opacity-hover;
+        }
+    }
+
+
+    span {
+        margin-left: .25rem;
+    }
+}
+
+.btn-text {
+    border: none;
+    display: inline;
+    transition: none;
+    outline: none;
+    vertical-align: baseline;
+    padding: 0;
+
+    &:active {
+        box-shadow: none !important;
+    }
+}
+
+.btn-square {
+    padding: $btn-padding-y;
+
+    &.btn-sm {
+        padding: $btn-padding-y-sm;
+    }
+
+    &.btn-lg {
+        padding: $btn-padding-y-lg;
+    }
+}
+
+.btn-round {
+    @extend .rounded-circle;
+    display: inline-flex;
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+
+    > .i, > .eo {
+        margin: auto !important;
+        transition: transform .3s;
+        transform: rotate(0deg);
+    }
+
+    &.btn-sm {
+        width: 2rem;
+        height: 2rem;
+    }
+
+    &.btn-lg {
+        width: 4rem;
+        height: 4rem;
+    }
+}
+
+.btn-black {
+    @include button-variant(#000, #000);
+}
+
+.btn-list-group-item {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+
+    &:focus, &:focus-within {
+        outline: none;
+        z-index: 1;
+    }
+}
+
+.btn-checkbox {
+
+    .i-checkbox-blank-outline {
+        display: inline-flex;
+    }
+
+    .i-checkbox-marked-outline {
+        display: none;
+    }
+
+    [type=checkbox] {
+        visibility: hidden;
+        position: absolute;
+
+        &:checked {
+            ~ .i-checkbox-blank-outline {
+                display: none;
+            }
+
+            ~ .i-checkbox-marked-outline {
+                display: inline-flex;
+            }
+        }
+    }
+}

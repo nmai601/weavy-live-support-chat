@@ -1,0 +1,23 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutBasic.cshtml";
+    Title = T["Cookie Access"].ToString();
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-sm-center">
+        <div class="col-sm-6">
+            <div class="text-center mb-3">
+                @Html.IconImg(48)
+            </div>
+            <h1 class="display-3 text-center">@Title</h1>
+            <p class="text-center">@T["Saving cookie access."]</p>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    wvy.postal.postToParent({ weavyId: true, name: "storage-access-granted", domain: window.location.origin });
+    wvy.postal.whenLeader().finally(() => window.close());
+</script>
+

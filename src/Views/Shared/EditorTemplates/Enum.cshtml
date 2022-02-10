@@ -1,0 +1,58 @@
+﻿@model Enum
+
+@{
+    var attrs = new Dictionary<string, object>();
+    attrs["class"] = "form-control";
+    attrs["id"] = ViewData.TemplateInfo.GetFullHtmlFieldId("");
+    attrs["name"] = ViewData.TemplateInfo.GetFullHtmlFieldName("");
+
+    var error = ViewData.ErrorMessage();
+    if (error != null) {
+        attrs.Append("class", "is-invalid");
+    }
+
+    var meta = ViewData.ModelMetadata;
+    // TODO: how/when do we set inputType = "select"
+    string inputType = Model != null && Model.IsFlags() ? "checkbox" : "radio";
+
+    Type underlyingType = Nullable.GetUnderlyingType(meta.ModelType) ?? meta.ModelType;
+    Array values = Enum.GetValues(underlyingType);
+}
+
+@if (ViewData.RenderSurroundingHtml()) {
+    WriteLiteral(@"<div class=""form-group"">");
+}
+@if (ViewData.RenderLabel()) {
+    @Html.LabelFor(m => m)
+}
+
+@if (inputType == "select") {
+    <select @Html.Attributes(attrs)>
+        @foreach (Enum item in values) {
+        <option value="@(Convert.ChangeType(item, item.GetTypeCode()))" @(Model.HasFlag(item) ? @"selected=""selected""" : "")>@item.GetDisplayName()</option>
+        }
+    </select>
+} else {
+    foreach (Enum item in values) {
+        var name = item.ToString();
+        if (inputType == "checkbox" && name == "None" || name == "All") {
+            continue;
+        } else {
+            name = item.GetDisplayName();
+        }
+        var desc = item.GetDisplayDescription();
+        <div class="custom-control custom-@inputType">
+            <input class="custom-control-input" id="@ViewData.TemplateInfo.GetFullHtmlFieldId(item.ToString())" name="@attrs["name"]" type="@inputType" value="@(Convert.ChangeType(item, item.GetTypeCode()))" @Html.Raw(Model.HasFlag(item) ? @"checked=""checked""" : "")>
+            <label class="custom-control-label" for="@ViewData.TemplateInfo.GetFullHtmlFieldId(item.ToString())">@name @if (desc != null) {<span class="form-text d-inline">@desc</span>}</label>
+        </div>
+    }
+}
+
+@if (error != null) {
+    <div class="invalid-feedback">@error</div>
+} else if (ViewData.RenderDescription()) {
+    <div class="form-text">@meta.Description</div>
+}
+@if (ViewData.RenderSurroundingHtml()) {
+    WriteLiteral(@"</div>");
+}

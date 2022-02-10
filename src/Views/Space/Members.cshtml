@@ -1,0 +1,67 @@
+﻿@using Weavy.Web.Controllers
+@model MembersModel
+
+@{
+    Back = WeavyContext.Space.Url();
+    Title = T["Members"].ToString();
+}
+
+@section navbar_middle {
+    @{ Html.RenderPartial("_NavbarMenu"); }
+}
+
+@section navbar_secondary {
+    <nav class="navbar navbar-theme">
+        <nav class="nav nav-tabs">
+            <a href="@(Url.Action<SpaceController>(c => c.Members(WeavyContext.Space.Id, null)))" class="nav-link active">@Title</a>
+        </nav>
+    </nav>
+}
+
+<div class="container-fluid mt-3">
+
+    @if (Model.Members.HasItems()) {
+        <table class="table table-hover table-name-desc">
+            <thead>
+                <tr>
+                    <th class="table-icon"></th>
+                    <th>@T["Name"]</th>
+                    <th>@T["Email"]</th>
+                    <th class="table-icon"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var member in Model.Members) {
+                    <tr data-href="@member.Url()" class="@(member.IsSuspended ? "table-muted": "")" data-modal>
+                        <td class="table-icon">@(member.AvatarImg(32, presence: true))</td>
+                        <td>
+                            @if (member.Username == member.GetTitle()) {
+                                <a href="@member.Url()"><small>@@@member.Username</small></a>
+                            } else {
+                                <a href="@member.Url()">@member.GetTitle()</a> <small>@@@member.Username</small>
+                            }
+                            @Html.Badge(member)
+                            @Html.Shield(member)
+                        </td>
+                        <td>@member.Email</td>
+                        <td class="table-icon">
+                            <div class="d-flex justify-content-end">
+                                @{ Html.RenderPartial("_MemberMenu", member);}
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+
+</div>
+
+@if (WeavyContext.Space.HasPermission(Permission.Members)) {
+    @section fab {
+        <div class="fab">
+            <button type="button" class="btn btn-round btn-primary" data-toggle="modal" data-target="#members-modal" data-keyboard="true" title="@T["Add members"]">@Svg.Icon("plus")</button>
+        </div>
+    }
+}

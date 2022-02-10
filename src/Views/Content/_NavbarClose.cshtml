@@ -1,0 +1,9 @@
+﻿@model Content
+@if (Model.ParentId != null) {
+    // back to folder
+    Back = Url.Back(Model.Parent().Url());
+} else {
+    Back = Url.Back(Model.App().Url());
+}
+
+<a class="btn btn-icon d-standalone close-back" href="@Back" data-link>@Svg.Icon("close")</a>

@@ -1,0 +1,9 @@
+﻿@model Space
+<div class="dropdown">
+    <button type="button" class="btn btn-icon dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="@T["Toggle Dropdown"]">
+        @Svg.Icon("dots-vertical")
+    </button>
+    <div class="dropdown-menu dropdown-menu-right">
+        @Html.Partial("_SpaceMenuItems")
+    </div>
+</div>

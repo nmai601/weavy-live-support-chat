@@ -1,0 +1,23 @@
+﻿@model Post
+@{
+    Title = T["Post details"].ToString();
+    Back = Model.App().Url();
+}
+@if (ConfigurationService.HtmlPosts || ConfigurationService.HtmlComments)
+{
+    @section scripts{
+        @Html.InitHtmlEditor()
+    }
+}
+<div class="container my-3">
+    @Html.Partial("_Post", Model, new ViewDataDictionary { { "details", true } })
+</div>
+
+@section footer {
+    @{
+        Html.RenderPartial("_FeedbackModal");
+        Html.RenderPartial("_EditPostModal");
+        Html.RenderPartial("_MovePostModal");
+        Html.RenderPartial("_EditCommentModal");
+    }
+}

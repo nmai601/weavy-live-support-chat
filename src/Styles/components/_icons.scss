@@ -1,0 +1,88 @@
+/// <reference path="../_core.scss" />
+
+// See https://google.github.io/material-design-icons/#styling-icons-in-material-design
+.i {
+    flex: 0 0 auto;
+    width: 1.5rem; // 24px
+    height: 1.5rem; // 24px
+
+    // icon sizes
+    &.i-9 {
+        width: .5625rem;
+        height: .5625rem;
+    }
+
+    &.i-12 {
+        width: .75rem;
+        height: .75rem;
+    }
+
+    &.i-18 {
+        width: 1.125rem;
+        height: 1.125rem;
+    }
+
+    &.i-24 {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+
+    &.i-32 {
+        width: 2rem;
+        height: 2rem;
+    }
+
+    &.i-36 {
+        width: 2.25rem;
+        height: 2.25rem;
+    }
+
+    &.i-48 {
+        width: 3rem;
+        height: 3rem;
+    }
+
+    &.i-72 {
+        width: 4.5rem;
+        height: 4.5rem;
+    }
+
+    &.i-96 {
+        width: 6rem;
+        height: 6rem;
+    }
+
+    &.i-128 {
+        width: 8rem;
+        height: 8rem;
+    }
+}
+
+// stacked icons
+.i-stack {
+    display: inline-block;
+    position: relative;
+    line-height: 1;
+
+    .i:last-child {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        background: $white;
+        border-radius: 50%;
+        //filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, .55));
+    }
+}
+
+// icon colors
+svg.i:not(.text-native) * {
+    // by default, every icon will inherit the text color of its parent,
+    // to override this and show the icon with its native colors (for example on logos) add the text-native class
+    fill: currentColor;
+}
+
+// fix for click event being swallowed by svg <use> in Edge
+// see: https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/10583086/
+button > svg, a > svg {
+    pointer-events: none;
+}

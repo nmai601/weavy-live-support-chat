@@ -1,0 +1,10 @@
+﻿@{
+    Title = T["Welcome"].ToString();
+    Layout = "~/Views/Setup/_Layout.cshtml";
+}
+
+<div class="text-center">
+    <h1 class="display-3">@T["Welcome to {0}", Theme.Name]</h1>
+    <p>@T["It's great to see that your installation is up and running. Before we start, there are couple of things we need you to configure."]</p>
+    @(Html.ActionLink<SetupController>(c => c.License(), text: T["Let's go"], htmlAttributes: new { @class = "btn btn-primary" }))
+</div>
